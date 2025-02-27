@@ -3,335 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earthquake Analyst</title>
-
+    <title>Earthquake Analyst - Intro</title>
     <style>
         body {
-            font-family: "Helvetica", sans-serif;
-            background-color: #eceff1;
-            color: #333;
             margin: 0;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a3d, #2a4066); /* Subtle cosmic gradient */
+            font-family: 'Exo 2', sans-serif; /* Cleaner futuristic font */
+            overflow: hidden;
         }
 
-        body.dark-mode {
-            background-color: #121212;
-            color: #f5f5f5;
+        .intro-container {
+            text-align: center;
+            color: #d9e4ff;
+            animation: fadeIn 2s ease-in-out;
         }
 
-        #logo {
-            width: 100px;
-            height: auto;
-            display: block;
-            margin: 0 auto 20px;
-        }
-
-        #controls {
+        h1 {
+            font-size: 3.5em;
             margin-bottom: 20px;
-            text-align: center;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #00c6ff, #ff5e62);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            background-color: #4caf50;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        p {
+            font-size: 1.3em;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+            color: #b3c7ff;
         }
 
-        button:disabled {
-            background-color: #aaa;
-        }
-
-        button:hover:not(:disabled) {
-            background-color: #45a049;
-        }
-
-        #earthquakeData, #aiFeedback, #statsView {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow-y: auto;
-            height: 500px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body.dark-mode #earthquakeData, 
-        body.dark-mode #aiFeedback,
-        body.dark-mode #statsView {
-            background-color: #333;
-            color: #f5f5f5;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        footer.dark-mode {
-            color: #bbb;
-        }
-
-        #aiFeedback {
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffeb3b;
-            color: #c2185b;
-            border-left: 5px solid #c2185b;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        body.dark-mode #aiFeedback {
-            background-color: #5e35b1;
+        .start-button {
+            padding: 15px 40px;
+            font-size: 1.5em;
             color: #fff;
+            background: linear-gradient(45deg, #00c6ff, #ff5e62);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 198, 255, 0.5);
+            animation: pulse 1.8s infinite;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        .dangerous {
-            color: red;
-            font-weight: bold;
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 94, 98, 0.7);
         }
 
-        .ai-prediction {
-            font-size: 18px;
-            margin-bottom: 10px;
+        @keyframes pulse {
+            0% { box-shadow: 0 5px 15px rgba(0, 198, 255, 0.5); }
+            50% { box-shadow: 0 5px 25px rgba(0, 198, 255, 0.8); }
+            100% { box-shadow: 0 5px 15px rgba(0, 198, 255, 0.5); }
         }
 
-        .risk-assessment, .safety-measures {
-            background-color: #f8bbd0;
-            border-radius: 5px;
-            padding: 15px;
-            margin-top: 10px;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .risk-assessment {
-            background-color: #f44336;
-            color: white;
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="white"/></svg>') repeat;
+            opacity: 0.2;
+            animation: twinkle 6s infinite;
         }
 
-        .safety-measures {
-            background-color: #4caf50;
-            color: white;
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.4; }
         }
-
     </style>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-CWS3EGBQK0"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-CWS3EGBQK0');
-</script>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
-<img src="0.jpg" id="logo" alt="Earthquake Analyst Logo">
-
-<h1 style="text-align: center;">Earthquake Analyst</h1>
-
-<p style="text-align: center; font-size: 18px; color: #555;">
-    Earthquake Analyst is an interactive tool that provides real-time earthquake data, insights, and predictions. Stay updated with the latest earthquake magnitudes, view detailed statistics, and receive AI-generated safety recommendations. Designed to help users understand seismic activity and make informed decisions during earthquakes.
-</p>
-
-<div id="controls">
-    <button onclick="fetchData()">Fetch Data</button>
-    <button onclick="viewDangerousEarthquakes()">View Dangerous Earthquakes</button>
-    <button onclick="viewStats()">View Stats</button>
-    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-</div>
-
-<div id="earthquakeData">No data available yet.</div>
-<div id="statsView" style="display: none;">
-    <h2>Earthquake Stats</h2>
-    <div id="statsContent">No data recorded yet.</div>
-</div>
-<div id="aiFeedback" style="display: none;">
-    <h2>AI Feedback</h2> <!-- Added AI Feedback Title -->
-</div>
-
-<footer>
-    <p>Design by Kofi Fosu</p>
-</footer>
-
-<script>
-    let earthquakeData = [];
-    let dangerousEarthquakes = [];
-    let isDarkMode = false;
-    let stats = {};  // Store data for each day
-    let aiInsights = [
-        {
-            prediction: "Severe shaking expected. Structural damage likely.",
-            riskAssessment: [
-                "Severe shaking with a high chance of structural damage in populated areas.",
-                "Likelihood of aftershocks in the coming hours or days.",
-                "Potential disruption of local infrastructure and utilities."
-            ],
-            safetyMeasures: [
-                "Stay indoors and away from windows. Seek shelter under sturdy furniture if needed.",
-                "If you are outdoors, move to an open area away from buildings, trees, and utility poles.",
-                "Prepare for possible aftershocks and be ready to evacuate if necessary."
-            ]
-        },
-        {
-            prediction: "Moderate shaking with minor damage expected.",
-            riskAssessment: [
-                "Minor structural damage in some areas.",
-                "Likelihood of minor aftershocks within the next few hours."
-            ],
-            safetyMeasures: [
-                "Check for gas leaks and structural integrity of your building.",
-                "Secure heavy items that may fall."
-            ]
-        },
-        {
-            prediction: "Low risk, only minor tremors likely.",
-            riskAssessment: [
-                "Low risk of structural damage or infrastructure disruption.",
-                "Tremors will likely be short-lived."
-            ],
-            safetyMeasures: [
-                "Remain cautious of minor tremors.",
-                "Ensure objects in your home are secured to avoid injury from falling objects."
-            ]
-        }
-    ];
-
-    // Auto fetch data every 30 seconds
-    let fetchInterval = setInterval(fetchData, 30000);
-
-    function fetchData() {
-        fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson")
-            .then((response) => {
-                if (!response.ok) throw new Error("Failed to fetch data");
-                return response.json();
-            })
-            .then((data) => {
-                processEarthquakeData(data);
-                generateAIAnalysis(data);
-                earthquakeData = data.features;
-                storeDataForStats(data); // Store the data for stats
-            })
-            .catch((error) => {
-                document.getElementById("earthquakeData").innerHTML = `Failed to fetch data: ${error.message}`;
-            });
-    }
-
-    function processEarthquakeData(data) {
-        const container = document.getElementById("earthquakeData");
-        container.innerHTML = `<h2>Earthquake Data (Last Updated: ${new Date().toLocaleString()})</h2>`;
-
-        data.features.forEach((earthquake) => {
-            const { place, mag, time } = earthquake.properties;
-            const date = new Date(time).toLocaleString();
-
-            container.innerHTML += ` 
-                <div>
-                    <div><strong>Location:</strong> ${place}</div>
-                    <div><strong>Magnitude:</strong> ${mag.toFixed(1)}</div>
-                    <div><strong>Date:</strong> ${date}</div>
-                    <hr />
-                </div>`;
-        });
-    }
-
-    function storeDataForStats(data) {
-        const currentDate = new Date().toLocaleDateString(); // Format date as YYYY/MM/DD
-        if (!stats[currentDate]) {
-            stats[currentDate] = [];
-        }
-        stats[currentDate].push(...data.features);  // Store all earthquakes for today
-    }
-
-    function viewDangerousEarthquakes() {
-        const container = document.getElementById("earthquakeData");
-        container.innerHTML = "<h2>Dangerous Earthquakes (Magnitude >= 4.0)</h2>";
-
-        dangerousEarthquakes = earthquakeData.filter((earthquake) => earthquake.properties.mag >= 4.0);
-
-        // Shuffle the dangerous earthquakes randomly
-        dangerousEarthquakes = dangerousEarthquakes.sort(() => Math.random() - 0.5);
-
-        if (dangerousEarthquakes.length > 0) {
-            dangerousEarthquakes.forEach((earthquake) => {
-                const { place, mag, time } = earthquake.properties;
-                const date = new Date(time).toLocaleString();
-                container.innerHTML += `
-                    <div class="dangerous">
-                        <div><strong>Location:</strong> ${place}</div>
-                        <div><strong>Magnitude:</strong> ${mag.toFixed(1)}</div>
-                        <div><strong>Date:</strong> ${date}</div>
-                        <hr />
-                    </div>`;
-            });
-        } else {
-            container.innerHTML += "<p>No dangerous earthquakes found.</p>";
-        }
-    }
-
-    function viewStats() {
-        const statsView = document.getElementById("statsView");
-        const statsContent = document.getElementById("statsContent");
-
-        // Toggle visibility of the stats section
-        statsView.style.display = statsView.style.display === "none" ? "block" : "none";
-
-        let statsHtml = "<h3>Statistics:</h3>";
-
-        // Display the data for the current day (could implement calendar to select specific dates)
-        const today = new Date().toLocaleDateString();
-        if (stats[today] && stats[today].length > 0) {
-            statsHtml += `<h4>Data for ${today}:</h4>`;
-            statsHtml += `<p><strong>Total Earthquakes Recorded: </strong>${stats[today].length}</p>`;  // Total earthquakes
-            stats[today].forEach((quake) => {
-                const { place, mag, time } = quake.properties;
-                const date = new Date(time).toLocaleString();
-                statsHtml += ` 
-                    <div>
-                        <div><strong>Location:</strong> ${place}</div>
-                        <div><strong>Magnitude:</strong> ${mag.toFixed(1)}</div>
-                        <div><strong>Date:</strong> ${date}</div>
-                    </div>`;
-            });
-        } else {
-            statsHtml += "<p>No data recorded for today yet.</p>";
-        }
-
-        statsContent.innerHTML = statsHtml;
-    }
-
-    function toggleDarkMode() {
-        isDarkMode = !isDarkMode;
-        document.body.classList.toggle("dark-mode", isDarkMode);
-    }
-
-    function generateAIAnalysis(data) {
-        const aiSection = document.getElementById("aiFeedback");
-        aiSection.style.display = "block";
-
-        const randomIndex = Math.floor(Math.random() * aiInsights.length);
-        const insight = aiInsights[randomIndex];
-
-        aiSection.innerHTML = `
-            <h2>AI Feedback</h2>
-            <div class="ai-prediction">${insight.prediction}</div>
-            <div class="risk-assessment"><strong>Risk Assessment:</strong><br>${insight.riskAssessment.join("<br>")}</div>
-            <div class="safety-measures"><strong>Safety Measures:</strong><br>${insight.safetyMeasures.join("<br>")}</div>
-        `;
-    }
-</script>
+    <div class="stars"></div>
+    <div class="intro-container">
+        <h1>Earthquake Analyst</h1>
+        <p>Welcome to a next-gen seismic experience. Monitor real-time earthquake data, uncover cosmic patterns, and get AI-driven insights. Tap to launch your exploration.</p>
+        <button class="start-button" onclick="window.location.href='main.html'">Tap to Start</button>
+    </div>
 </body>
 </html>
