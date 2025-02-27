@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Earthquake Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/jsLKmRVo5Y8L8O+1o=" crossorigin=""/>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Exo 2', sans-serif;
             background: linear-gradient(135deg, #1a1a3d, #2a4066);
             color: #d9e4ff;
-            margin: 0;
-            padding: 20px;
             min-height: 100vh;
-            box-sizing: border-box;
+            padding: 20px;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-
         #logo {
-            width: 120px;
+            width: clamp(80px, 20vw, 120px);
             height: auto;
             display: block;
             margin: 0 auto 25px;
             filter: drop-shadow(0 5px 10px rgba(0, 198, 255, 0.5));
         }
-
         h1 {
             text-align: center;
             font-size: clamp(1.5em, 5vw, 2.5em);
@@ -33,14 +38,12 @@
             -webkit-text-fill-color: transparent;
             letter-spacing: 2px;
         }
-
         p {
             text-align: center;
-            font-size: clamp(1em, 3vw, 1.2em);
+            font-size: clamp(0.9em, 3vw, 1.2em);
             color: #b3c7ff;
             margin-bottom: 20px;
         }
-
         #controls {
             margin-bottom: 25px;
             text-align: center;
@@ -49,11 +52,9 @@
             justify-content: center;
             gap: 10px;
         }
-
         button {
             padding: 12px 25px;
-            margin: 5px;
-            font-size: clamp(0.9em, 2.5vw, 1em);
+            font-size: clamp(0.8em, 2.5vw, 1em);
             font-weight: 700;
             color: #fff;
             background: linear-gradient(45deg, #00c6ff, #ff5e62);
@@ -63,18 +64,17 @@
             box-shadow: 0 4px 12px rgba(0, 198, 255, 0.4);
             transition: transform 0.2s, box-shadow 0.2s;
             touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
-
         button:disabled {
             background: #4a5e8c;
             box-shadow: none;
+            cursor: not-allowed;
         }
-
         button:hover:not(:disabled), button:active:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 18px rgba(255, 94, 98, 0.6);
         }
-
         #earthquakeData, #aiFeedback, #statsView, #earthquakeMap {
             max-width: 850px;
             width: 100%;
@@ -84,63 +84,45 @@
             border: 2px solid #00c6ff;
             border-radius: 15px;
             overflow-y: auto;
-            height: 500px;
+            height: clamp(300px, 50vh, 500px);
             box-shadow: 0 5px 20px rgba(0, 198, 255, 0.3);
-            box-sizing: border-box;
         }
-
         #earthquakeMap {
-            height: 400px;
+            height: clamp(250px, 40vh, 400px);
             padding: 0;
             display: none;
         }
-
-        @media (max-width: 600px) {
-            #earthquakeData, #aiFeedback, #statsView, #earthquakeMap {
-                height: 300px;
-            }
-            #earthquakeMap {
-                height: 250px;
-            }
-        }
-
         #earthquakeData h2, #statsView h2, #aiFeedback h2 {
             color: #ff5e62;
-            margin-top: 0;
             font-size: clamp(1.2em, 4vw, 1.5em);
+            margin-top: 0;
         }
-
         #earthquakeData div, #statsView div {
             background: rgba(255, 255, 255, 0.05);
             padding: 10px;
             margin: 5px 0;
             border-radius: 10px;
         }
-
         footer {
             text-align: center;
             margin-top: 30px;
             font-size: clamp(0.8em, 2vw, 1em);
             color: #b3c7ff;
         }
-
         #aiFeedback {
             background: linear-gradient(45deg, rgba(0, 198, 255, 0.2), rgba(255, 94, 98, 0.2));
             border: 2px solid #ff5e62;
+            display: none;
         }
-
         .dangerous {
             color: #ff6b6b;
             font-weight: bold;
         }
-
         .ai-prediction {
             font-size: clamp(1em, 3vw, 1.3em);
             margin-bottom: 15px;
             color: #d9e4ff;
-            transition: opacity 0.5s ease;
         }
-
         .risk-assessment, .safety-measures {
             padding: 15px;
             margin-top: 10px;
@@ -148,11 +130,9 @@
             background: rgba(255, 94, 98, 0.3);
             color: #fff;
         }
-
         .safety-measures {
             background: rgba(0, 198, 255, 0.3);
         }
-
         #statsDatePicker {
             padding: 10px;
             font-size: clamp(0.9em, 2.5vw, 1em);
@@ -165,27 +145,15 @@
             width: 100%;
             max-width: 200px;
         }
-
-        /* Leaflet popup styling for clarity */
         .leaflet-popup-content-wrapper {
             background: rgba(42, 64, 102, 0.95);
             color: #d9e4ff;
             border-radius: 10px;
         }
-
         .leaflet-popup-tip {
             background: rgba(42, 64, 102, 0.95);
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/jsLKmRVo5Y8L8O+1o=" crossorigin=""/>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CWS3EGBQK0"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-CWS3EGBQK0');
-    </script>
 </head>
 <body>
     <img src="0.jpg" id="logo" alt="Earthquake Analyst Logo">
@@ -200,14 +168,14 @@
         <button onclick="toggleMap()">View Map</button>
     </div>
 
-    <div id="earthquakeData">No data available yet.</div>
+    <div id="earthquakeData">No data available yet. Tap "Fetch Data" to start.</div>
     <div id="earthquakeMap"></div>
     <div id="statsView" style="display: none;">
         <h2>Earthquake Stats</h2>
         <input type="date" id="statsDatePicker" onchange="updateStats()">
         <div id="statsContent">No data recorded yet.</div>
     </div>
-    <div id="aiFeedback" style="display: none;">
+    <div id="aiFeedback">
         <h2>AI Insights</h2>
     </div>
 
@@ -220,7 +188,8 @@
         let earthquakeData = [];
         let dangerousEarthquakes = [];
         let stats = {};
-        let aiInsights = [
+        let currentMapData = [];
+        const aiInsights = [
             {
                 prediction: "Severe shaking detected. High alert.",
                 riskAssessment: ["Major structural risks.", "Aftershocks likely.", "Infrastructure disruption possible."],
@@ -238,13 +207,10 @@
             }
         ];
 
-        let fetchInterval = setInterval(fetchData, 30000);
-        let aiCycleInterval = null;
-        let currentMapData = [];
-
-        let map = L.map('earthquakeMap', { 
+        const map = L.map('earthquakeMap', {
             zoomControl: true,
-            doubleClickZoom: false
+            doubleClickZoom: false,
+            scrollWheelZoom: true
         }).setView([0, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -255,54 +221,51 @@
 
         function fetchData() {
             fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson")
-                .then((response) => {
-                    if (!response.ok) throw new Error("Failed to fetch data");
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
                     return response.json();
                 })
-                .then((data) => {
+                .then(data => {
                     earthquakeData = data.features;
-                    processEarthquakeData(data);
+                    processEarthquakeData();
                     currentMapData = earthquakeData;
-                    if (document.getElementById("earthquakeMap").style.display === "block") updateMap(currentMapData);
-                    generateAIAnalysis(data);
-                    storeDataForStats(data);
-                    document.getElementById("statsView").style.display = "none";
+                    if (document.getElementById("earthquakeMap").style.display === "block") updateMap();
+                    generateAIAnalysis();
+                    storeDataForStats();
                 })
-                .catch((error) => {
-                    document.getElementById("earthquakeData").innerHTML = `Failed to fetch data: ${error.message}`;
+                .catch(error => {
+                    document.getElementById("earthquakeData").innerHTML = `Error: ${error.message}`;
                     console.error("Fetch error:", error);
                 });
         }
 
-        function processEarthquakeData(data) {
+        function processEarthquakeData() {
             const container = document.getElementById("earthquakeData");
             container.innerHTML = `<h2>Seismic Feed (Updated: ${new Date().toLocaleString()})</h2>`;
-            data.features.forEach((earthquake) => {
-                const { place, mag, time } = earthquake.properties;
+            earthquakeData.forEach(quake => {
+                const { place, mag, time } = quake.properties;
                 const date = new Date(time).toLocaleString();
                 container.innerHTML += `
                     <div>
-                        <div><strong>Location:</strong> ${place}</div>
-                        <div><strong>Magnitude:</strong> ${mag.toFixed(1)}</div>
-                        <div><strong>Time:</strong> ${date}</div>
-                        <hr />
+                        <strong>Location:</strong> ${place}<br>
+                        <strong>Magnitude:</strong> ${mag.toFixed(1)}<br>
+                        <strong>Time:</strong> ${date}<hr>
                     </div>`;
             });
         }
 
-        function storeDataForStats(data) {
+        function storeDataForStats() {
             const currentDate = new Date().toLocaleDateString("en-US", { timeZone: "UTC" });
-            if (!stats[currentDate]) stats[currentDate] = [];
-            stats[currentDate] = data.features;
+            stats[currentDate] = earthquakeData;
         }
 
         function viewRegularEarthquakes() {
-            if (earthquakeData.length > 0) {
-                processEarthquakeData({ features: earthquakeData });
+            if (earthquakeData.length) {
+                processEarthquakeData();
                 currentMapData = earthquakeData;
-                if (document.getElementById("earthquakeMap").style.display === "block") updateMap(currentMapData);
+                if (document.getElementById("earthquakeMap").style.display === "block") updateMap();
             } else {
-                document.getElementById("earthquakeData").innerHTML = "<h2>Regular Quakes</h2><p>No data available yet. Fetch data first.</p>";
+                document.getElementById("earthquakeData").innerHTML = "<h2>Regular Quakes</h2><p>No data yet. Tap 'Fetch Data' to load.</p>";
             }
             document.getElementById("statsView").style.display = "none";
         }
@@ -310,66 +273,69 @@
         function viewDangerousEarthquakes() {
             const container = document.getElementById("earthquakeData");
             container.innerHTML = "<h2>High-Impact Quakes (Mag ≥ 4.0)</h2>";
-            dangerousEarthquakes = earthquakeData.filter((e) => e.properties.mag >= 4.0).sort(() => Math.random() - 0.5);
-            if (dangerousEarthquakes.length > 0) {
-                dangerousEarthquakes.forEach((earthquake) => {
-                    const { place, mag, time } = earthquake.properties;
-                    const date = new Date(time).toLocaleString();
-                    container.innerHTML += `
-                        <div class="dangerous">
-                            <div><strong>Location:</strong> ${place}</div>
-                            <div><strong>Magnitude:</strong> ${mag.toFixed(1)}</div>
-                            <div><strong>Time:</strong> ${date}</div>
-                            <hr />
-                        </div>`;
-                });
-                currentMapData = dangerousEarthquakes;
-                if (document.getElementById("earthquakeMap").style.display === "block") updateMap(currentMapData);
+            if (earthquakeData.length) {
+                dangerousEarthquakes = earthquakeData.filter(e => e.properties.mag >= 4.0);
+                if (dangerousEarthquakes.length) {
+                    dangerousEarthquakes.forEach(quake => {
+                        const { place, mag, time } = quake.properties;
+                        const date = new Date(time).toLocaleString();
+                        container.innerHTML += `
+                            <div class="dangerous">
+                                <strong>Location:</strong> ${place}<br>
+                                <strong>Magnitude:</strong> ${mag.toFixed(1)}<br>
+                                <strong>Time:</strong> ${date}<hr>
+                            </div>`;
+                    });
+                    currentMapData = dangerousEarthquakes;
+                    if (document.getElementById("earthquakeMap").style.display === "block") updateMap();
+                } else {
+                    container.innerHTML += "<p>No high-impact quakes found.</p>";
+                    currentMapData = [];
+                    if (document.getElementById("earthquakeMap").style.display === "block") updateMap();
+                }
             } else {
-                container.innerHTML += "<p>No high-impact quakes found.</p>";
-                currentMapData = [];
-                if (document.getElementById("earthquakeMap").style.display === "block") updateMap(currentMapData);
+                container.innerHTML += "<p>No data yet. Tap 'Fetch Data' to load.</p>";
             }
             document.getElementById("statsView").style.display = "none";
         }
 
         function viewStats() {
             const statsView = document.getElementById("statsView");
-            statsView.style.display = "block";
-            const datePicker = document.getElementById("statsDatePicker");
-            datePicker.value = new Date().toISOString().split("T")[0];
-            updateStats();
+            if (statsView.style.display === "block") {
+                statsView.style.display = "none";
+            } else {
+                statsView.style.display = "block";
+                const datePicker = document.getElementById("statsDatePicker");
+                datePicker.value = new Date().toISOString().split("T")[0];
+                updateStats();
+            }
         }
 
         function updateStats() {
             const statsContent = document.getElementById("statsContent");
-            const selectedDate = new Date(document.getElementById("statsDatePicker").value);
-            const formattedDate = selectedDate.toLocaleDateString("en-US", { timeZone: "UTC" });
-
-            let statsHtml = `<h3>Stats for ${formattedDate}</h3>`;
-            if (stats[formattedDate] && stats[formattedDate].length > 0) {
-                statsHtml += `<p><strong>Total Quakes:</strong> ${stats[formattedDate].length}</p>`;
-                stats[formattedDate].forEach((quake) => {
+            const selectedDate = new Date(document.getElementById("statsDatePicker").value)
+                .toLocaleDateString("en-US", { timeZone: "UTC" });
+            statsContent.innerHTML = `<h3>Stats for ${selectedDate}</h3>`;
+            if (stats[selectedDate] && stats[selectedDate].length) {
+                statsContent.innerHTML += `<p><strong>Total Quakes:</strong> ${stats[selectedDate].length}</p>`;
+                stats[selectedDate].forEach(quake => {
                     const { place, mag, time } = quake.properties;
                     const date = new Date(time).toLocaleString();
-                    statsHtml += `
+                    statsContent.innerHTML += `
                         <div>
-                            <div><strong>Location:</strong> ${place}</div>
-                            <div><strong>Magnitude:</strong> ${mag.toFixed(1)}</div>
-                            <div><strong>Time:</strong> ${date}</div>
+                            <strong>Location:</strong> ${place}<br>
+                            <strong>Magnitude:</strong> ${mag.toFixed(1)}<br>
+                            <strong>Time:</strong> ${date}
                         </div>`;
                 });
             } else {
-                statsHtml += "<p>No data recorded for this date. Try fetching data for past days!</p>";
+                statsContent.innerHTML += "<p>No data for this date. Tap 'Fetch Data' to load.</p>";
             }
-            statsContent.innerHTML = statsHtml;
         }
 
-        function generateAIAnalysis(data) {
+        function generateAIAnalysis() {
             const aiSection = document.getElementById("aiFeedback");
             aiSection.style.display = "block";
-            if (aiCycleInterval) clearInterval(aiCycleInterval);
-
             let currentIndex = 0;
             function updateAIInsight() {
                 const insight = aiInsights[currentIndex];
@@ -381,22 +347,21 @@
                 `;
                 currentIndex = (currentIndex + 1) % aiInsights.length;
             }
-
             updateAIInsight();
-            aiCycleInterval = setInterval(updateAIInsight, 5000);
+            clearInterval(window.aiCycleInterval);
+            window.aiCycleInterval = setInterval(updateAIInsight, 5000);
         }
 
-        function updateMap(data) {
-            map.eachLayer((layer) => {
+        function updateMap() {
+            map.eachLayer(layer => {
                 if (layer instanceof L.Marker) map.removeLayer(layer);
             });
-
-            if (data.length > 0) {
-                data.forEach((earthquake) => {
-                    const coords = earthquake.geometry.coordinates; // [longitude, latitude, depth]
-                    const { place, mag } = earthquake.properties;
+            if (currentMapData.length) {
+                const markers = currentMapData.map(quake => {
+                    const coords = quake.geometry.coordinates; // [lon, lat, depth]
+                    const { place, mag } = quake.properties;
                     const markerSize = Math.max(10, mag * 5);
-                    const marker = L.marker([coords[1], coords[0]], { // Lat (1), Lon (0)
+                    const marker = L.marker([coords[1], coords[0]], {
                         title: `${place} (Mag: ${mag.toFixed(1)})`
                     }).addTo(map);
                     marker.bindPopup(`<b>${place}</b><br>Magnitude: ${mag.toFixed(1)}<br>Coords: ${coords[1].toFixed(4)}°N, ${coords[0].toFixed(4)}°E`);
@@ -405,33 +370,30 @@
                         html: `<div style="background: linear-gradient(45deg, #ff5e62, #00c6ff); width: ${markerSize}px; height: ${markerSize}px; border-radius: 50%; opacity: 0.8; border: 2px solid #fff;"></div>`,
                         iconSize: [markerSize, markerSize]
                     }));
-                    // Open popup automatically for the first marker to verify location
-                    if (data.indexOf(earthquake) === 0) marker.openPopup();
+                    return marker;
                 });
-                const group = new L.featureGroup(data.map(f => L.marker([f.geometry.coordinates[1], f.geometry.coordinates[0]])));
+                const group = new L.featureGroup(markers);
                 map.fitBounds(group.getBounds().pad(0.1));
                 map.invalidateSize();
+                markers[0]?.openPopup();
             } else {
                 map.setView([0, 0], 2);
-                const container = document.getElementById("earthquakeMap");
-                container.innerHTML += '<p style="text-align: center; padding: 10px;">No quakes to display on map.</p>';
+                document.getElementById("earthquakeMap").innerHTML = '<p style="text-align: center; padding: 10px;">No quakes to display. Tap "Fetch Data" to load.</p>';
             }
         }
 
         function toggleMap() {
             const mapDiv = document.getElementById("earthquakeMap");
-            if (mapDiv.style.display === "none" || mapDiv.style.display === "") {
-                mapDiv.style.display = "block";
-                updateMap(currentMapData);
-            } else {
+            if (mapDiv.style.display === "block") {
                 mapDiv.style.display = "none";
+            } else {
+                mapDiv.style.display = "block";
+                updateMap();
             }
         }
 
         window.addEventListener('resize', () => {
-            if (document.getElementById("earthquakeMap").style.display === "block") {
-                map.invalidateSize();
-            }
+            if (document.getElementById("earthquakeMap").style.display === "block") map.invalidateSize();
         });
     </script>
 </body>
