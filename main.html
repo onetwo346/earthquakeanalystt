@@ -27,9 +27,11 @@
         }
         .header-container {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            position: relative;
             margin-bottom: 20px;
+            padding: 15px 0;
         }
         .logo-title {
             display: flex;
@@ -39,6 +41,8 @@
         .auth-container {
             display: flex;
             align-items: center;
+            position: absolute;
+            right: 20px;
         }
         .premium-btn {
             background: linear-gradient(45deg, #ffd700, #ff9d00);
@@ -97,6 +101,10 @@
             display: block;
             margin: 0 auto 25px;
             filter: drop-shadow(0 5px 10px rgba(0, 198, 255, 0.5));
+            border-radius: 50%;
+            border: 2px solid rgba(0, 198, 255, 0.3);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
         }
         h1 {
             text-align: center;
@@ -543,6 +551,25 @@
             
             #earthquakeData, #aiFeedback, #statsView, #earthquakeMap {
                 height: 350px;
+            }
+            
+            .header-container {
+                padding: 15px;
+            }
+            
+            .auth-container {
+                position: absolute;
+                right: 15px;
+                top: 15px;
+            }
+            
+            #logo {
+                width: 80px;
+                margin-bottom: 15px;
+            }
+            
+            h1 {
+                font-size: clamp(1.3em, 4vw, 2em);
             }
         }
         
