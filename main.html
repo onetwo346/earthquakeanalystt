@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Earthquake Analyst</title>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
@@ -12,6 +12,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             font-family: 'Exo 2', sans-serif;
@@ -21,6 +22,8 @@
             padding: 20px;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            width: 100%;
         }
         #logo {
             width: clamp(80px, 20vw, 120px);
@@ -65,6 +68,7 @@
             transition: transform 0.2s, box-shadow 0.2s;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
         }
         button:disabled {
             background: #4a5e8c;
@@ -84,7 +88,7 @@
             border: 2px solid #00c6ff;
             border-radius: 15px;
             overflow-y: auto;
-            height: clamp(300px, 50vh, 500px);
+            height: 350px;
             box-shadow: 0 5px 20px rgba(0, 198, 255, 0.3);
         }
         #earthquakeMap {
@@ -223,6 +227,7 @@
         .ai-icon {
             width: 35px;
             height: 35px;
+            min-width: 35px;
             background: linear-gradient(45deg, #00c6ff, #ff5e62);
             border-radius: 50%;
             margin-right: 15px;
@@ -318,6 +323,8 @@
             cursor: pointer;
             margin-right: 5px;
             border-bottom: 2px solid transparent;
+            font-size: 14px;
+            white-space: nowrap;
         }
         
         .insight-tab.active {
@@ -350,6 +357,7 @@
             align-items: flex-end;
             justify-content: space-between;
             padding-bottom: 25px;
+            padding-left: 25px;
         }
         
         .trend-graph-bar {
@@ -451,69 +459,107 @@
         
         /* Responsive improvements for better cross-device compatibility */
         @media (max-width: 768px) {
-            #controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            button {
-                width: 80%;
-                max-width: 250px;
-                margin-bottom: 5px;
-            }
-            
-            #earthquakeData, #aiFeedback, #statsView {
-                height: clamp(350px, 60vh, 600px);
-                margin: 15px auto;
-            }
-        }
-        
-        @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 15px 10px;
+            }
+            
+            #controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                width: 100%;
+                gap: 8px;
             }
             
             button {
                 width: 100%;
                 padding: 10px 15px;
+                font-size: 14px;
+                margin: 0;
             }
             
-            #earthquakeData, #aiFeedback, #statsView {
+            #earthquakeData, #aiFeedback, #statsView, #earthquakeMap {
+                height: 350px;
+                margin: 15px auto;
+                padding: 15px;
+            }
+            
+            .ai-stat-box {
+                min-width: 100px;
                 padding: 10px;
-                height: clamp(300px, 70vh, 500px);
+            }
+            
+            .ai-stat-value {
+                font-size: 1.5em;
+            }
+            
+            .insight-tab {
+                padding: 8px 12px;
+                font-size: 12px;
+                margin-right: 2px;
+            }
+            
+            .ai-prediction {
+                font-size: 14px;
+                padding: 10px;
+            }
+            
+            .risk-assessment, .safety-measures {
+                padding: 10px;
+                font-size: 14px;
             }
         }
         
-        /* Remove duplicate map styles */
-        
-        /* Essential map marker styles */
-        .earthquake-marker {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        /* Pulse animation for earthquake markers */
-        @keyframes pulse {
-            0% {
-                transform: scale(0.5);
-                opacity: 1;
+        @media (max-width: 480px) {
+            body {
+                padding: 10px 5px;
             }
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
+            
+            h1 {
+                font-size: 1.5em;
             }
-        }
-        
-        /* Basic map popup styling */
-        .leaflet-popup-content-wrapper {
-            background: rgba(42, 64, 102, 0.95);
-            color: #d9e4ff;
-            border-radius: 10px;
-        }
-        
-        .leaflet-popup-tip {
-            background: rgba(42, 64, 102, 0.95);
+            
+            p {
+                font-size: 0.9em;
+            }
+            
+            #controls {
+                grid-template-columns: 1fr;
+            }
+            
+            button {
+                font-size: 13px;
+                padding: 10px;
+            }
+            
+            #earthquakeData, #aiFeedback, #statsView, #earthquakeMap {
+                padding: 10px;
+                height: 350px;
+                margin: 10px auto;
+            }
+            
+            .ai-stat-box {
+                min-width: calc(50% - 5px);
+                padding: 8px;
+            }
+            
+            .trend-graph {
+                height: 120px;
+            }
+            
+            .ai-header {
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+            }
+            
+            .ai-icon {
+                width: 25px;
+                height: 25px;
+                min-width: 25px;
+            }
+            
+            #earthquakeData h2, #statsView h2, #aiFeedback h2 {
+                font-size: 1.2em;
+            }
         }
     </style>
 </head>
@@ -612,8 +658,32 @@
         // Initialize map only after DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             initMap();
-            // Remove auto-load data
+            // Set consistent sizes for elements on load
+            setConsistentSizes();
+            // Add listener for orientation changes
+            window.addEventListener('orientationchange', function() {
+                setTimeout(function() {
+                    setConsistentSizes();
+                    if (map) map.invalidateSize();
+                }, 200);
+            });
         });
+
+        function setConsistentSizes() {
+            // Set fixed heights for containers
+            const containers = [
+                document.getElementById('earthquakeData'),
+                document.getElementById('statsView'),
+                document.getElementById('aiFeedback'),
+                document.getElementById('earthquakeMap')
+            ];
+            
+            containers.forEach(container => {
+                if (container) {
+                    container.style.height = '350px';
+                }
+            });
+        }
 
         function initMap() {
             // Only initialize if not already created
@@ -621,7 +691,9 @@
                 map = L.map('earthquakeMap', {
                     zoomControl: true,
                     doubleClickZoom: false,
-                    scrollWheelZoom: true
+                    scrollWheelZoom: true,
+                    dragging: !L.Browser.mobile,
+                    tap: !L.Browser.mobile
                 }).setView([0, 0], 2);
                 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -675,13 +747,7 @@
                 })
                 .then(data => {
                     if (data && data.features && data.features.length > 0) {
-                        // Check the data structure
-                        console.log("Earthquake data sample:", data.features[0]);
-                        
-                        // Verify coordinates format
-                        const sampleCoords = data.features[0].geometry.coordinates;
-                        console.log(`Sample coordinates format: [${sampleCoords}], Type: ${typeof sampleCoords}, Is Array: ${Array.isArray(sampleCoords)}`);
-                        
+                        // Ensure data processing is consistent
                         earthquakeData = data.features;
                         currentMapData = earthquakeData;
                         processEarthquakeData();
@@ -956,7 +1022,7 @@
             function updateAIInsight() {
                 const insight = getAIInsightWithRealData();
                 
-                // Create tab navigation
+                // Create tab navigation with better display on small screens
                 const tabsHtml = `
                     <div class="ai-header">
                         <div class="ai-icon"></div>
@@ -965,14 +1031,14 @@
                     
                     <div class="ai-prediction">${insight.prediction}</div>
                     
-                    <div>
+                    <div style="display: flex; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch;">
                         <button class="insight-tab active" data-tab="overview">Overview</button>
                         <button class="insight-tab" data-tab="trends">Trends</button>
                         <button class="insight-tab" data-tab="regional">Regional</button>
                     </div>
                 `;
                 
-                // Create overview tab content
+                // Create overview tab content with consistent sizing
                 const overviewHtml = `
                     <div id="overview-content" class="insight-content active">
                         <div class="ai-stats">
@@ -1006,11 +1072,11 @@
                     </div>
                 `;
                 
-                // Create trends tab content
+                // Create trends tab content with fixed scales
                 let trendsHtml = `<div id="trends-content" class="insight-content">`;
                 
                 if (insight.trends) {
-                    // Add magnitude trend graph
+                    // Add magnitude trend graph with consistent scaling
                     trendsHtml += `
                         <div class="trend-graph-title">Magnitude Trend (Last 7 Days)</div>
                         <div class="trend-graph">
@@ -1022,14 +1088,14 @@
                                 <div class="trend-axis-label">0</div>
                             </div>
                             ${insight.trends.magnitude.map((mag, i) => {
-                                const height = (mag / 8) * 100; // Scale to percentage (8 is max on our scale)
+                                const height = Math.min(100, (mag / 8) * 100); // Scale to percentage with a maximum
                                 const day = 6 - i; // Days ago (0 is today)
                                 const isDanger = mag >= 4.0;
                                 
                                 return `
                                     <div class="trend-graph-bar ${isDanger ? 'danger' : ''}" 
                                          style="height: ${height}%">
-                                        <div class="trend-graph-label">${day === 0 ? 'Today' : (day === 1 ? 'Yesterday' : `${day} days ago`)}</div>
+                                        <div class="trend-graph-label">${day === 0 ? 'Today' : (day === 1 ? 'Yesterday' : `${day}d ago`)}</div>
                                     </div>
                                 `;
                             }).join('')}
@@ -1046,13 +1112,13 @@
                                 <div class="trend-axis-label">0</div>
                             </div>
                             ${insight.trends.events.map((count, i) => {
-                                const height = (count / 25) * 100; // Scale to percentage (25 is max on our scale)
+                                const height = Math.min(100, (count / 25) * 100); // Scale to percentage with a maximum
                                 const day = 6 - i; // Days ago (0 is today)
                                 
                                 return `
                                     <div class="trend-graph-bar" 
                                          style="height: ${height}%">
-                                        <div class="trend-graph-label">${day === 0 ? 'Today' : (day === 1 ? 'Yesterday' : `${day} days ago`)}</div>
+                                        <div class="trend-graph-label">${day === 0 ? 'Today' : (day === 1 ? 'Yesterday' : `${day}d ago`)}</div>
                                     </div>
                                 `;
                             }).join('')}
@@ -1070,7 +1136,7 @@
                 
                 trendsHtml += `</div>`;
                 
-                // Create regional tab content
+                // Create regional tab content with consistent layout
                 let regionalHtml = `<div id="regional-content" class="insight-content">`;
                 
                 if (insight.hotspots && insight.hotspots.length > 0) {
@@ -1116,23 +1182,29 @@
                 // Combine all content
                 aiSection.innerHTML = tabsHtml + overviewHtml + trendsHtml + regionalHtml;
                 
-                // Add tab switching functionality
+                // Add tab switching functionality with touch support
                 setTimeout(() => {
                     const tabs = document.querySelectorAll('.insight-tab');
+                    const tabHandler = function() {
+                        // Hide all content sections
+                        document.querySelectorAll('.insight-content').forEach(content => {
+                            content.classList.remove('active');
+                        });
+                        
+                        // Show selected content
+                        const contentId = this.getAttribute('data-tab') + '-content';
+                        document.getElementById(contentId).classList.add('active');
+                        
+                        // Update active tab styling
+                        tabs.forEach(t => t.classList.remove('active'));
+                        this.classList.add('active');
+                    };
+                    
                     tabs.forEach(tab => {
-                        tab.addEventListener('click', () => {
-                            // Hide all content sections
-                            document.querySelectorAll('.insight-content').forEach(content => {
-                                content.classList.remove('active');
-                            });
-                            
-                            // Show selected content
-                            const contentId = tab.getAttribute('data-tab') + '-content';
-                            document.getElementById(contentId).classList.add('active');
-                            
-                            // Update active tab styling
-                            tabs.forEach(t => t.classList.remove('active'));
-                            tab.classList.add('active');
+                        tab.addEventListener('click', tabHandler);
+                        tab.addEventListener('touchend', function(e) {
+                            e.preventDefault();
+                            tabHandler.call(this);
                         });
                     });
                 }, 100);
@@ -1235,12 +1307,20 @@
                     // Force map to resize and update
                     map.invalidateSize(true);
                     updateMap();
-                }, 300); // Slightly longer delay to ensure map loads properly
+                }, 500); // Longer delay to ensure map loads properly
             }
         }
 
+        // Add resize handler with throttling
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            if (document.getElementById("earthquakeMap").style.display === "block") map.invalidateSize();
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                setConsistentSizes();
+                if (document.getElementById("earthquakeMap").style.display === "block" && map) {
+                    map.invalidateSize(true);
+                }
+            }, 250);
         });
     </script>
 </body>
