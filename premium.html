@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Premium Earthquake Analyst</title>
+    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/earthquake.png">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/jsLKmRVo5Y8L8O+1o=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --dark-bg: #12122d;
+            --primary: #00c6ff;
+            --secondary: #ff5e62;
+            --text-light: #d9e4ff;
+            --text-muted: #8b9dc7;
+            --card-bg: rgba(30, 41, 82, 0.9);
+            --dark-blue: #1a1a3d;
+            --blue-gradient: linear-gradient(135deg, #1a1a3d, #2a4066);
+            --accent-gradient: linear-gradient(45deg, #00c6ff, #ff5e62);
+            --gold-gradient: linear-gradient(45deg, #ffd700, #ff9d00);
+            --success-color: #00e676;
+            --warning-color: #ffeb3b;
+            --danger-color: #ff5252;
+            --info-color: #00b0ff;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --border-radius: 15px;
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--blue-gradient);
+            color: var(--text-light);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            width: 100%;
+            display: flex;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: rgba(18, 18, 45, 0.95);
+            border-right: 1px solid rgba(0, 198, 255, 0.15);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: transform var(--transition-speed);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-hidden .sidebar {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar-logo {
+            padding: 0 20px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 198, 255, 0.15);
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .sidebar-logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            filter: drop-shadow(0 2px 5px rgba(0, 198, 255, 0.5));
+        }
+        
+        .sidebar-logo h2 {
+            font-size: 18px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 0 15px;
+        }
+        
+        .nav-section {
+            margin-bottom: 30px;
+        }
+        
+        .nav-section-title {
+            text-transform: uppercase;
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 0 15px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(0, 198, 255, 0.1);
+        }
+        
+        .nav-item.active {
+            background-color: rgba(0, 198, 255, 0.15);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 16px;
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-item .badge {
+            margin-left: auto;
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .user-section {
+            padding: 15px;
+            margin-top: auto;
+            background-color: rgba(30, 41, 82, 0.4);
+            border-top: 1px solid rgba(0, 198, 255, 0.15);
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .user-status {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-status .premium-badge {
+            display: inline-flex;
+            align-items: center;
+            background: var(--gold-gradient);
+            color: var(--dark-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+        
+        .user-status .premium-badge i {
+            font-size: 8px;
+            margin-right: 3px;
+        }
+        
+        .user-menu {
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .user-menu:hover {
+            color: var(--primary);
+            background-color: rgba(0, 198, 255, 0.1);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 20px 30px;
+            transition: margin-left var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-hidden .main-content {
+            margin-left: 0;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(0, 198, 255, 0.15);
+            height: var(--header-height);
+        }
+        
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .page-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 20px;
+            cursor: pointer;
+            display: none; /* Hide by default on desktop */
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: rgba(0, 198, 255, 0.1);
+            transition: all 0.2s;
+        }
+        
+        .menu-toggle:hover {
+            background-color: rgba(0, 198, 255, 0.2);
+        }
+        
+        /* Show menu toggle only on mobile */
+        @media (max-width: 992px) {
+            .menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.pushed {
+                margin-left: var(--sidebar-width);
+            }
+            
+            /* Add backdrop for mobile when sidebar is open */
+            .backdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 99;
+            }
+            
+            .backdrop.active {
+                display: block;
+            }
+            
+            .search-box input {
+                width: 200px;
+            }
+            
+            .search-box input:focus {
+                width: 200px;
+            }
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            background-color: rgba(30, 41, 82, 0.6);
+            border: 1px solid rgba(0, 198, 255, 0.2);
+            border-radius: 10px;
+            padding: 10px 15px 10px 40px;
+            color: var(--text-light);
+            width: 250px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.1);
+            width: 300px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        
+        .notifications {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notifications i {
+            font-size: 22px;
+            color: var(--text-light);
+        }
+        
+        .notifications .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logout-btn {
+            background-color: rgba(255, 94, 98, 0.2);
+            border: 1px solid rgba(255, 94, 98, 0.4);
+            color: var(--text-light);
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logout-btn i {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 94, 98, 0.3);
+        }
+        
+        /* Dashboard Content */
+        .dashboard-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+        
+        /* Widget Styles */
+        .widgets-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        
+        .widget {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid rgba(0, 198, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s;
+        }
+        
+        .widget:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border-color: rgba(0, 198, 255, 0.4);
+        }
+        
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .widget-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        
+        .widget-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(0, 198, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .widget-icon i {
+            font-size: 18px;
+            color: var(--primary);
+        }
+        
+        .widget-icon.warning {
+            background: rgba(255, 152, 0, 0.1);
+        }
+        
+        .widget-icon.warning i {
+            color: #ff9800;
+        }
+        
+        .widget-icon.success {
+            background: rgba(0, 230, 118, 0.1);
+        }
+        
+        .widget-icon.success i {
+            color: var(--success-color);
+        }
+        
+        .widget-data {
+            margin-top: auto;
+        }
+        
+        .widget-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        
+        .widget-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .trend {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .trend i {
+            font-size: 10px;
+            margin-right: 4px;
+        }
+        
+        .trend.up {
+            color: var(--success-color);
+        }
+        
+        .trend.down {
+            color: var(--danger-color);
+        }
+        
+        /* More styles for other components will follow */
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.pushed {
+                margin-left: var(--sidebar-width);
+            }
+            
+            /* Add backdrop for mobile when sidebar is open */
+            .backdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 99;
+            }
+            
+            .backdrop.active {
+                display: block;
+            }
+            
+            .search-box input {
+                width: 200px;
+            }
+            
+            .search-box input:focus {
+                width: 200px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .widgets-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-actions {
+                display: none;
+            }
+            
+            .menu-toggle {
+                display: flex;
+            }
+        }
+        
+        .sidebar-close {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(0, 198, 255, 0.1);
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .sidebar-close:hover {
+            color: var(--primary);
+            background-color: rgba(0, 198, 255, 0.2);
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar-close {
+                display: flex;
+            }
+            
+            .sidebar-logo {
+                justify-content: center;
+                padding-right: 40px;
+            }
+        }
+        
+        /* Responsive adjustments for mobile */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .widgets-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .dashboard-panels {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .filter-bar {
+                overflow-x: auto;
+                padding: 10px;
+                justify-content: flex-start;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .filter-btn {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <img src="0.jpg" alt="Logo">
+                <h2>Earthquake Analyst</h2>
+                <button class="sidebar-close" id="sidebar-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <div class="nav-item active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-globe"></i>
+                        <span>Global View</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Regions</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Disasters</div>
+                    <div class="nav-item">
+                        <i class="fas fa-wave-square"></i>
+                        <span>Earthquakes</span>
+                        <div class="badge">12</div>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-water"></i>
+                        <span>Tsunamis</span>
+                        <div class="badge">3</div>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-mountain"></i>
+                        <span>Volcanoes</span>
+                        <div class="badge">5</div>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-wind"></i>
+                        <span>Hurricanes</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-fire"></i>
+                        <span>Wildfires</span>
+                        <div class="badge">8</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">More</div>
+                    <div class="nav-item">
+                        <i class="fas fa-newspaper"></i>
+                        <span>News Feed</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Assistant</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Help</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="user-section">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="user-name">User</div>
+                    <div class="user-status">
+                        <span>Active</span>
+                        <div class="premium-badge">
+                            <i class="fas fa-crown"></i>
+                            PREMIUM
+                        </div>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <i class="fas fa-ellipsis-v"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="page-title">
+                    <button id="sidebar-toggle" class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Premium Dashboard</h1>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search events, locations...">
+                    </div>
+                    
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <div class="badge">5</div>
+                    </div>
+                    
+                    <button class="logout-btn" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Widgets Row -->
+                <div class="widgets-row">
+                    <div class="widget">
+                        <div class="widget-header">
+                            <div class="widget-title">Active Events</div>
+                            <div class="widget-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                        </div>
+                        <div class="widget-data">
+                            <div class="widget-value">28</div>
+                            <div class="widget-label">
+                                Worldwide
+                                <span class="trend up">
+                                    <i class="fas fa-arrow-up"></i>
+                                    12%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-header">
+                            <div class="widget-title">Risk Level</div>
+                            <div class="widget-icon warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                        <div class="widget-data">
+                            <div class="widget-value">Moderate</div>
+                            <div class="widget-label">
+                                Pacific Region
+                                <span class="trend up">
+                                    <i class="fas fa-arrow-up"></i>
+                                    3 levels
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-header">
+                            <div class="widget-title">Predicted Events</div>
+                            <div class="widget-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                        </div>
+                        <div class="widget-data">
+                            <div class="widget-value">14</div>
+                            <div class="widget-label">
+                                Next 7 days
+                                <span class="trend down">
+                                    <i class="fas fa-arrow-down"></i>
+                                    5%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-header">
+                            <div class="widget-title">Subscription</div>
+                            <div class="widget-icon success">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                        </div>
+                        <div class="widget-data">
+                            <div class="widget-value" id="subscription-days">90</div>
+                            <div class="widget-label" id="subscription-status">
+                                Days remaining
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Dashboard Panels -->
+                <div class="dashboard-panels">
+                    <div class="dashboard-panel">
+                        <style>
+                            .dashboard-panels {
+                                display: grid;
+                                grid-template-columns: 1fr 350px;
+                                gap: 20px;
+                                height: 100%;
+                            }
+                            
+                            @media (max-width: 1200px) {
+                                .dashboard-panels {
+                                    grid-template-columns: 1fr;
+                                }
+                            }
+                            
+                            .dashboard-panel {
+                                background-color: var(--card-bg);
+                                border-radius: var(--border-radius);
+                                border: 1px solid rgba(0, 198, 255, 0.2);
+                                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                                overflow: hidden;
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            
+                            .panel-header {
+                                padding: 15px 20px;
+                                border-bottom: 1px solid rgba(0, 198, 255, 0.15);
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                            }
+                            
+                            .panel-title {
+                                font-size: 18px;
+                                font-weight: 600;
+                                color: var(--primary);
+                            }
+                            
+                            .panel-actions {
+                                display: flex;
+                                gap: 10px;
+                            }
+                            
+                            .panel-btn {
+                                background-color: rgba(0, 198, 255, 0.1);
+                                border: 1px solid rgba(0, 198, 255, 0.2);
+                                color: var(--text-light);
+                                border-radius: 8px;
+                                padding: 5px 10px;
+                                font-size: 12px;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                                display: flex;
+                                align-items: center;
+                            }
+                            
+                            .panel-btn i {
+                                margin-right: 5px;
+                                font-size: 12px;
+                            }
+                            
+                            .panel-btn:hover {
+                                background-color: rgba(0, 198, 255, 0.2);
+                            }
+                            
+                            .panel-body {
+                                flex: 1;
+                                padding: 0;
+                                overflow: hidden;
+                                position: relative;
+                            }
+                            
+                            .filter-bar {
+                                padding: 15px 20px;
+                                background-color: rgba(30, 41, 82, 0.4);
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 10px;
+                                border-bottom: 1px solid rgba(0, 198, 255, 0.15);
+                            }
+                            
+                            .filter-btn {
+                                padding: 6px 12px;
+                                background: rgba(0, 198, 255, 0.1);
+                                border: 1px solid rgba(0, 198, 255, 0.2);
+                                border-radius: 20px;
+                                color: var(--text-light);
+                                font-size: 13px;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                            }
+                            
+                            .filter-btn.active {
+                                background: var(--accent-gradient);
+                                border-color: transparent;
+                                color: white;
+                            }
+                            
+                            .disaster-map {
+                                height: 100%;
+                                width: 100%;
+                            }
+                            
+                            /* News Feed & Chatbot Styles */
+                            .side-panel {
+                                display: flex;
+                                flex-direction: column;
+                                height: 100%;
+                            }
+                            
+                            .tabs {
+                                display: flex;
+                                border-bottom: 1px solid rgba(0, 198, 255, 0.15);
+                            }
+                            
+                            .tab {
+                                flex: 1;
+                                padding: 15px;
+                                text-align: center;
+                                cursor: pointer;
+                                font-weight: 600;
+                                color: var(--text-muted);
+                                transition: all 0.2s;
+                                border-bottom: 3px solid transparent;
+                            }
+                            
+                            .tab.active {
+                                color: var(--primary);
+                                border-bottom-color: var(--primary);
+                            }
+                            
+                            .tab-content {
+                                flex: 1;
+                                overflow: hidden;
+                                position: relative;
+                            }
+                            
+                            .tab-pane {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                display: none;
+                                flex-direction: column;
+                            }
+                            
+                            .tab-pane.active {
+                                display: flex;
+                            }
+                        </style>
+                        
+                        <div class="panel-header">
+                            <div class="panel-title">Global Disaster Map</div>
+                            <div class="panel-actions">
+                                <button class="panel-btn">
+                                    <i class="fas fa-location-arrow"></i>
+                                    My Location
+                                </button>
+                                <button class="panel-btn">
+                                    <i class="fas fa-sync-alt"></i>
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-bar">
+                            <div class="filter-btn active" data-filter="all">All Events</div>
+                            <div class="filter-btn" data-filter="earthquake">Earthquakes</div>
+                            <div class="filter-btn" data-filter="tsunami">Tsunamis</div>
+                            <div class="filter-btn" data-filter="volcano">Volcanoes</div>
+                            <div class="filter-btn" data-filter="hurricane">Hurricanes</div>
+                            <div class="filter-btn" data-filter="wildfire">Wildfires</div>
+                        </div>
+                        
+                        <div class="panel-body">
+                            <div id="disaster-map" class="disaster-map"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-panel side-panel">
+                        <div class="tabs">
+                            <div class="tab active" data-tab="news-feed">News Feed</div>
+                            <div class="tab" data-tab="ai-assistant">AI Assistant</div>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <!-- News Feed Tab -->
+                            <div class="tab-pane active" id="news-feed">
+                                <style>
+                                    .news-feed {
+                                        height: 100%;
+                                        overflow-y: auto;
+                                        padding: 15px;
+                                    }
+                                    
+                                    .news-item {
+                                        padding: 15px;
+                                        border-bottom: 1px solid rgba(0, 198, 255, 0.15);
+                                        position: relative;
+                                    }
+                                    
+                                    .news-item:last-child {
+                                        border-bottom: none;
+                                    }
+                                    
+                                    .news-badge {
+                                        position: absolute;
+                                        top: 15px;
+                                        right: 15px;
+                                        padding: 3px 8px;
+                                        border-radius: 12px;
+                                        font-size: 10px;
+                                        font-weight: 600;
+                                        text-transform: uppercase;
+                                    }
+                                    
+                                    .news-badge.breaking {
+                                        background-color: #ff3860;
+                                        color: white;
+                                    }
+                                    
+                                    .news-badge.update {
+                                        background-color: #3273dc;
+                                        color: white;
+                                    }
+                                    
+                                    .news-badge.info {
+                                        background-color: #209cee;
+                                        color: white;
+                                    }
+                                    
+                                    .news-time {
+                                        font-size: 12px;
+                                        color: var(--text-muted);
+                                        margin-bottom: 5px;
+                                    }
+                                    
+                                    .news-title {
+                                        font-size: 15px;
+                                        font-weight: 600;
+                                        color: var(--text-light);
+                                        margin-bottom: 8px;
+                                        padding-right: 60px;
+                                    }
+                                    
+                                    .news-summary {
+                                        font-size: 13px;
+                                        color: var(--text-muted);
+                                        line-height: 1.4;
+                                        margin-bottom: 12px;
+                                    }
+                                    
+                                    .news-footer {
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                    }
+                                    
+                                    .news-source {
+                                        font-size: 12px;
+                                        color: var(--text-muted);
+                                        display: flex;
+                                        align-items: center;
+                                    }
+                                    
+                                    .news-source img {
+                                        width: 16px;
+                                        height: 16px;
+                                        border-radius: 50%;
+                                        margin-right: 5px;
+                                        object-fit: cover;
+                                    }
+                                    
+                                    .news-actions {
+                                        display: flex;
+                                        gap: 10px;
+                                    }
+                                    
+                                    .news-action {
+                                        color: var(--text-muted);
+                                        font-size: 12px;
+                                        cursor: pointer;
+                                        transition: all 0.2s;
+                                    }
+                                    
+                                    .news-action:hover {
+                                        color: var(--primary);
+                                    }
+                                    
+                                    .news-action i {
+                                        margin-right: 3px;
+                                    }
+                                </style>
+                                
+                                <div class="news-feed">
+                                    <div class="news-item">
+                                        <div class="news-badge breaking">Breaking</div>
+                                        <div class="news-time">2 hours ago</div>
+                                        <div class="news-title">6.2 Magnitude Earthquake Hits Coast of Japan</div>
+                                        <div class="news-summary">
+                                            A strong earthquake with a preliminary magnitude of 6.2 struck off the coast of Japan. 
+                                            No tsunami warning has been issued. Minor damage reported in coastal areas.
+                                        </div>
+                                        <div class="news-footer">
+                                            <div class="news-source">
+                                                <img src="https://via.placeholder.com/16" alt="Source">
+                                                USGS Earthquakes
+                                            </div>
+                                            <div class="news-actions">
+                                                <span class="news-action"><i class="fas fa-share-alt"></i> Share</span>
+                                                <span class="news-action"><i class="fas fa-bookmark"></i> Save</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="news-item">
+                                        <div class="news-badge update">Update</div>
+                                        <div class="news-time">5 hours ago</div>
+                                        <div class="news-title">Volcano Warning Level Raised in Hawaii</div>
+                                        <div class="news-summary">
+                                            Officials have raised the warning level for Kilauea volcano following 
+                                            increased seismic activity. Residents advised to prepare for possible evacuation.
+                                        </div>
+                                        <div class="news-footer">
+                                            <div class="news-source">
+                                                <img src="https://via.placeholder.com/16" alt="Source">
+                                                Hawaii Volcanoes Observatory
+                                            </div>
+                                            <div class="news-actions">
+                                                <span class="news-action"><i class="fas fa-share-alt"></i> Share</span>
+                                                <span class="news-action"><i class="fas fa-bookmark"></i> Save</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="news-item">
+                                        <div class="news-badge info">Info</div>
+                                        <div class="news-time">Yesterday</div>
+                                        <div class="news-title">Scientists Develop New Earthquake Prediction Model</div>
+                                        <div class="news-summary">
+                                            Researchers claim to have developed a new AI-based model that can predict 
+                                            earthquakes with 78% accuracy up to 2 days in advance. Still under peer review.
+                                        </div>
+                                        <div class="news-footer">
+                                            <div class="news-source">
+                                                <img src="https://via.placeholder.com/16" alt="Source">
+                                                Science Journal
+                                            </div>
+                                            <div class="news-actions">
+                                                <span class="news-action"><i class="fas fa-share-alt"></i> Share</span>
+                                                <span class="news-action"><i class="fas fa-bookmark"></i> Save</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="news-item">
+                                        <div class="news-time">2 days ago</div>
+                                        <div class="news-title">Turkey Commemorates Anniversary of Devastating Earthquake</div>
+                                        <div class="news-summary">
+                                            Turkey marks the anniversary of the 7.8 magnitude earthquake that claimed over 
+                                            50,000 lives. Reconstruction efforts continue in affected regions.
+                                        </div>
+                                        <div class="news-footer">
+                                            <div class="news-source">
+                                                <img src="https://via.placeholder.com/16" alt="Source">
+                                                International News Network
+                                            </div>
+                                            <div class="news-actions">
+                                                <span class="news-action"><i class="fas fa-share-alt"></i> Share</span>
+                                                <span class="news-action"><i class="fas fa-bookmark"></i> Save</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="news-item">
+                                        <div class="news-time">3 days ago</div>
+                                        <div class="news-title">New Early Warning System Deployed in California</div>
+                                        <div class="news-summary">
+                                            California has deployed an enhanced earthquake early warning system that can 
+                                            provide alerts up to 20 seconds before shaking begins in populated areas.
+                                        </div>
+                                        <div class="news-footer">
+                                            <div class="news-source">
+                                                <img src="https://via.placeholder.com/16" alt="Source">
+                                                Tech Innovations
+                                            </div>
+                                            <div class="news-actions">
+                                                <span class="news-action"><i class="fas fa-share-alt"></i> Share</span>
+                                                <span class="news-action"><i class="fas fa-bookmark"></i> Save</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- AI Assistant Tab -->
+                            <div class="tab-pane" id="ai-assistant">
+                                <style>
+                                    .chat-container {
+                                        display: flex;
+                                        flex-direction: column;
+                                        height: 100%;
+                                        background-color: var(--card-bg);
+                                    }
+                                    
+                                    .chat-header {
+                                        padding: 10px 15px;
+                                        background-color: rgba(0, 198, 255, 0.1);
+                                        border-bottom: 1px solid rgba(0, 198, 255, 0.15);
+                                        display: flex;
+                                        align-items: center;
+                                    }
+                                    
+                                    .chat-header-icon {
+                                        width: 32px;
+                                        height: 32px;
+                                        border-radius: 50%;
+                                        background: var(--accent-gradient);
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        margin-right: 12px;
+                                    }
+                                    
+                                    .chat-header-icon i {
+                                        color: white;
+                                        font-size: 16px;
+                                    }
+                                    
+                                    .chat-header-title {
+                                        flex: 1;
+                                    }
+                                    
+                                    .chat-header-title h3 {
+                                        margin: 0;
+                                        font-size: 15px;
+                                        font-weight: 600;
+                                        color: var(--text-light);
+                                    }
+                                    
+                                    .chat-header-title p {
+                                        margin: 0;
+                                        font-size: 12px;
+                                        color: var(--text-muted);
+                                    }
+                                    
+                                    .chat-body {
+                                        flex: 1;
+                                        overflow-y: auto;
+                                        padding: 15px;
+                                        display: flex;
+                                        flex-direction: column;
+                                        gap: 15px;
+                                    }
+                                    
+                                    .chat-message {
+                                        display: flex;
+                                        flex-direction: column;
+                                        max-width: 85%;
+                                    }
+                                    
+                                    .chat-message.user {
+                                        align-self: flex-end;
+                                    }
+                                    
+                                    .chat-message.bot {
+                                        align-self: flex-start;
+                                    }
+                                    
+                                    .chat-message-content {
+                                        padding: 10px 15px;
+                                        border-radius: 18px;
+                                        font-size: 14px;
+                                        line-height: 1.4;
+                                    }
+                                    
+                                    .chat-message.user .chat-message-content {
+                                        background: var(--accent-gradient);
+                                        color: white;
+                                        border-bottom-right-radius: 5px;
+                                    }
+                                    
+                                    .chat-message.bot .chat-message-content {
+                                        background-color: rgba(0, 198, 255, 0.1);
+                                        color: var(--text-light);
+                                        border-bottom-left-radius: 5px;
+                                    }
+                                    
+                                    .chat-message-info {
+                                        font-size: 11px;
+                                        color: var(--text-muted);
+                                        margin-top: 5px;
+                                        align-self: flex-end;
+                                    }
+                                    
+                                    .chat-message.user .chat-message-info {
+                                        align-self: flex-end;
+                                    }
+                                    
+                                    .chat-message.bot .chat-message-info {
+                                        align-self: flex-start;
+                                    }
+                                    
+                                    .chat-footer {
+                                        padding: 15px;
+                                        border-top: 1px solid rgba(0, 198, 255, 0.15);
+                                    }
+                                    
+                                    .chat-input-wrapper {
+                                        position: relative;
+                                        display: flex;
+                                        align-items: center;
+                                    }
+                                    
+                                    .chat-input {
+                                        flex: 1;
+                                        padding: 12px 45px 12px 15px;
+                                        background-color: rgba(0, 198, 255, 0.1);
+                                        border: 1px solid rgba(0, 198, 255, 0.15);
+                                        border-radius: 24px;
+                                        color: var(--text-light);
+                                        font-size: 14px;
+                                        outline: none;
+                                        transition: all 0.2s;
+                                    }
+                                    
+                                    .chat-input:focus {
+                                        border-color: rgba(0, 198, 255, 0.5);
+                                        box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.1);
+                                    }
+                                    
+                                    .chat-input::placeholder {
+                                        color: var(--text-muted);
+                                    }
+                                    
+                                    .chat-submit {
+                                        position: absolute;
+                                        right: 8px;
+                                        top: 50%;
+                                        transform: translateY(-50%);
+                                        width: 30px;
+                                        height: 30px;
+                                        background: var(--accent-gradient);
+                                        border: none;
+                                        border-radius: 50%;
+                                        color: white;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        cursor: pointer;
+                                        transition: all 0.2s;
+                                    }
+                                    
+                                    .chat-submit:hover {
+                                        transform: translateY(-50%) scale(1.05);
+                                    }
+                                    
+                                    .quick-questions {
+                                        display: flex;
+                                        flex-wrap: wrap;
+                                        gap: 8px;
+                                        margin-top: 10px;
+                                    }
+                                    
+                                    .quick-question {
+                                        padding: 5px 12px;
+                                        background-color: rgba(0, 198, 255, 0.05);
+                                        border: 1px solid rgba(0, 198, 255, 0.15);
+                                        border-radius: 15px;
+                                        color: var(--text-muted);
+                                        font-size: 12px;
+                                        cursor: pointer;
+                                        transition: all 0.2s;
+                                    }
+                                    
+                                    .quick-question:hover {
+                                        background-color: rgba(0, 198, 255, 0.1);
+                                        color: var(--primary);
+                                    }
+                                </style>
+                                
+                                <div class="chat-container">
+                                    <div class="chat-header">
+                                        <div class="chat-header-icon">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="chat-header-title">
+                                            <h3>EarthQuake AI Assistant</h3>
+                                            <p>Ask me anything about earthquakes and hazards</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="chat-body" id="chat-messages">
+                                        <div class="chat-message bot">
+                                            <div class="chat-message-content">
+                                                👋 Hello! I'm your EarthQuake AI Assistant. I can help with earthquake information, 
+                                                risk assessment, safety tips, and more. What would you like to know?
+                                            </div>
+                                            <div class="chat-message-info">Now</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="chat-footer">
+                                        <div class="chat-input-wrapper">
+                                            <input type="text" class="chat-input" id="chat-input" placeholder="Type your question here..." autocomplete="off">
+                                            <button class="chat-submit" id="chat-submit">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                        <div class="quick-questions">
+                                            <div class="quick-question" data-question="What's the earthquake risk in my area?">What's the earthquake risk in my area?</div>
+                                            <div class="quick-question" data-question="How do I prepare for an earthquake?">How do I prepare for an earthquake?</div>
+                                            <div class="quick-question" data-question="Latest earthquake predictions?">Latest earthquake predictions?</div>
+                                            <div class="quick-question" data-question="Tell me about tsunami risks">Tell me about tsunami risks</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // DOM Elements & Variables
+        let sidebarToggle, sidebar, main, tabs, tabPanes, filterBtns, 
+            quickQuestions, chatInput, chatSubmit, chatMessages, sidebarClose;
+        
+        // Initialize all elements after DOM is ready
+        function initElements() {
+            sidebarToggle = document.getElementById('sidebar-toggle');
+            sidebar = document.querySelector('.sidebar');
+            main = document.querySelector('.main-content');
+            tabs = document.querySelectorAll('.tab');
+            tabPanes = document.querySelectorAll('.tab-pane');
+            filterBtns = document.querySelectorAll('.filter-btn');
+            quickQuestions = document.querySelectorAll('.quick-question');
+            chatInput = document.getElementById('chat-input');
+            chatSubmit = document.getElementById('chat-submit');
+            chatMessages = document.getElementById('chat-messages');
+            sidebarClose = document.getElementById('sidebar-close');
+            
+            // Set user avatar if exists
+            const userName = localStorage.getItem('userName');
+            if (userName) {
+                const userAvatar = document.querySelector('.user-avatar');
+                if (userAvatar) {
+                    userAvatar.textContent = userName.charAt(0).toUpperCase();
+                }
+            }
+            
+            // Initialize event listeners
+            initEventListeners();
+        }
+        
+        // Initialize all event listeners
+        function initEventListeners() {
+            // Toggle sidebar
+            if (sidebarToggle && sidebar && main) {
+                sidebarToggle.addEventListener('click', () => {
+                    // Create backdrop if it doesn't exist
+                    let backdrop = document.querySelector('.backdrop');
+                    if (!backdrop) {
+                        backdrop = document.createElement('div');
+                        backdrop.className = 'backdrop';
+                        document.body.appendChild(backdrop);
+                        
+                        // Close sidebar when backdrop is clicked
+                        backdrop.addEventListener('click', () => {
+                            sidebar.classList.remove('active');
+                            backdrop.classList.remove('active');
+                            main.classList.remove('pushed');
+                        });
+                    }
+                    
+                    // Toggle active classes
+                    sidebar.classList.toggle('active');
+                    backdrop.classList.toggle('active');
+                    
+                    // Only push content on larger tablets, not on phones
+                    if (window.innerWidth > 768 && window.innerWidth < 992) {
+                        main.classList.toggle('pushed');
+                    }
+                });
+            }
+            
+            // Close sidebar with close button
+            if (sidebarClose && sidebar) {
+                sidebarClose.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                    const backdrop = document.querySelector('.backdrop');
+                    if (backdrop) {
+                        backdrop.classList.remove('active');
+                    }
+                    main.classList.remove('pushed');
+                });
+            }
+            
+            // Make nav items clickable
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    navItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                    
+                    // Show notification for clicked item
+                    const itemText = item.querySelector('span').textContent;
+                    showNotification(`Navigated to ${itemText}`, 'info');
+                });
+            });
+            
+            // News feed share and save buttons
+            const newsShareBtns = document.querySelectorAll('.news-action:nth-child(1)');
+            const newsSaveBtns = document.querySelectorAll('.news-action:nth-child(2)');
+            
+            // Share buttons
+            newsShareBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent event bubbling
+                    const newsItem = btn.closest('.news-item');
+                    const newsTitle = newsItem.querySelector('.news-title').textContent;
+                    showNotification(`Sharing: ${newsTitle}`, 'info');
+                });
+            });
+            
+            // Save buttons
+            newsSaveBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent event bubbling
+                    const newsItem = btn.closest('.news-item');
+                    const newsTitle = newsItem.querySelector('.news-title').textContent;
+                    
+                    // Toggle saved state
+                    if (btn.classList.contains('saved')) {
+                        btn.classList.remove('saved');
+                        btn.innerHTML = '<i class="fas fa-bookmark"></i> Save';
+                        showNotification(`Removed from saved items: ${newsTitle}`, 'info');
+                    } else {
+                        btn.classList.add('saved');
+                        btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                        btn.style.color = 'var(--primary)';
+                        showNotification(`Saved to your bookmarks: ${newsTitle}`, 'success');
+                    }
+                });
+            });
+            
+            // Make news items clickable
+            const newsItems = document.querySelectorAll('.news-item');
+            newsItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const newsTitle = item.querySelector('.news-title').textContent;
+                    showNotification(`Opening article: ${newsTitle}`, 'info');
+                });
+            });
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Show the corresponding tab pane
+                    const tabId = tab.getAttribute('data-tab');
+                    tabPanes.forEach(pane => {
+                        pane.classList.remove('active');
+                        if (pane.id === tabId) {
+                            pane.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Filter buttons
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all filter buttons
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    
+                    // Get the filter value
+                    const filter = btn.getAttribute('data-filter');
+                    
+                    // Apply filtering to map (would be implemented with real map API)
+                    console.log(`Filtering map for: ${filter}`);
+                    
+                    // For demo purposes: show filter feedback
+                    showNotification(`Map filtered for ${filter === 'all' ? 'all events' : filter}`, 'info');
+                });
+            });
+            
+            // Chatbot functionality
+            
+            // Quick questions
+            quickQuestions.forEach(question => {
+                question.addEventListener('click', () => {
+                    const questionText = question.getAttribute('data-question');
+                    chatInput.value = questionText;
+                    handleChatSubmit();
+                });
+            });
+            
+            // Chat input submit
+            if (chatSubmit) {
+                chatSubmit.addEventListener('click', handleChatSubmit);
+            }
+            
+            // Allow sending message with Enter key
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        handleChatSubmit();
+                    }
+                });
+            }
+            
+            // Logout functionality
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    // Clear user data
+                    localStorage.removeItem('earthquakeUser');
+                    sessionStorage.clear();
+                    
+                    // Show notification
+                    showNotification('Successfully logged out', 'success');
+                    
+                    // Redirect to index page after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                });
+            }
+            
+            // Search box functionality
+            const searchBox = document.querySelector('.search-box input');
+            if (searchBox) {
+                searchBox.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const searchTerm = searchBox.value.trim();
+                        if (searchTerm) {
+                            showNotification(`Searching for: ${searchTerm}`, 'info');
+                            searchBox.value = '';
+                        }
+                    }
+                });
+            }
+            
+            // Notification bell functionality
+            const notificationBell = document.querySelector('.notifications');
+            if (notificationBell) {
+                notificationBell.addEventListener('click', () => {
+                    showNotification('You have 5 unread notifications', 'info');
+                    
+                    // Show a sample notification
+                    setTimeout(() => {
+                        showNotification('New earthquake alert: 4.2 magnitude near San Francisco', 'warning');
+                    }, 1000);
+                });
+            }
+        }
+        
+        // Handle chat submission
+        function handleChatSubmit() {
+            if (!chatInput || !chatMessages) return;
+            
+            const message = chatInput.value.trim();
+            if (message) {
+                // Add user message to chat
+                addChatMessage(message, 'user');
+                
+                // Clear input
+                chatInput.value = '';
+                
+                // Process the message (simulate response with setTimeout)
+                setTimeout(() => {
+                    const response = getBotResponse(message);
+                    addChatMessage(response, 'bot');
+                    
+                    // Scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+        }
+        
+        // Add a message to the chat
+        function addChatMessage(message, sender) {
+            if (!chatMessages) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', sender);
+            
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('chat-message-content');
+            messageContent.textContent = message;
+            
+            const messageInfo = document.createElement('div');
+            messageInfo.classList.add('chat-message-info');
+            messageInfo.textContent = 'Just now';
+            
+            messageDiv.appendChild(messageContent);
+            messageDiv.appendChild(messageInfo);
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Simple response logic for demo
+        function getBotResponse(message) {
+            message = message.toLowerCase();
+            
+            if (message.includes('risk') && message.includes('area')) {
+                return "Based on your IP location, you appear to be in a moderate risk zone for earthquakes. The region has a 15% probability of experiencing a magnitude 5.0 or greater earthquake in the next 50 years. Would you like more specific information about fault lines in your area?";
+            }
+            
+            if (message.includes('prepare') || message.includes('preparation')) {
+                return "To prepare for an earthquake: 1) Create an emergency plan and kit with water, food, medications, and important documents. 2) Secure heavy furniture and appliances to walls. 3) Know how to shut off gas, water, and electricity. 4) Identify safe spots in each room (under sturdy tables, against interior walls). 5) Practice 'drop, cover, and hold on' drills with your family.";
+            }
+            
+            if (message.includes('prediction') || message.includes('forecast')) {
+                return "Our premium AI model is currently forecasting increased seismic activity in the Pacific Rim over the next 7 days, with a 65% probability of at least one 5.0+ magnitude event. The highest risk areas include portions of Japan, Indonesia, and Chile. These predictions are based on historical patterns, fault monitoring, and machine learning analysis.";
+            }
+            
+            if (message.includes('tsunami')) {
+                return "Tsunami risks are highest following underwater earthquakes of magnitude 7.0 or greater. Coastal regions bordering the Pacific Ocean (the 'Ring of Fire') have the highest tsunami risk globally. Warning signs include rapid water recession from shorelines and unusual roaring sounds. If you're in a coastal area and feel strong shaking, move to higher ground immediately without waiting for official warnings.";
+            }
+            
+            // Default response
+            return "I'm your earthquake information assistant. I can provide details on earthquake risks, preparation tips, prediction models, and safety procedures. How else can I help you today?";
+        }
+        
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notifications = document.getElementById('notifications') || createNotificationsContainer();
+            
+            const notification = document.createElement('div');
+            notification.classList.add('notification', type);
+            
+            // Icons based on notification type
+            const icons = {
+                'success': 'check-circle',
+                'error': 'exclamation-circle',
+                'warning': 'exclamation-triangle',
+                'info': 'info-circle'
+            };
+            
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas fa-${icons[type] || 'info-circle'}"></i>
+                </div>
+                <div class="notification-content">${message}</div>
+                <div class="notification-close">
+                    <i class="fas fa-times"></i>
+                </div>
+            `;
+            
+            // Add click event to close button
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.classList.add('closing');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+            
+            notifications.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.add('closing');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, 5000);
+            
+            return notification;
+        }
+        
+        // Create notifications container if it doesn't exist
+        function createNotificationsContainer() {
+            const container = document.createElement('div');
+            container.id = 'notifications';
+            container.style.position = 'fixed';
+            container.style.top = '20px';
+            container.style.right = '20px';
+            container.style.zIndex = '9999';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.gap = '10px';
+            
+            // Add styles for notifications
+            const style = document.createElement('style');
+            style.textContent = `
+                .notification {
+                    display: flex;
+                    align-items: center;
+                    padding: 12px 15px;
+                    background-color: var(--card-bg);
+                    border-left: 4px solid #2196f3;
+                    border-radius: 4px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    min-width: 300px;
+                    max-width: 450px;
+                    animation: slide-in 0.3s ease forwards;
+                    pointer-events: auto;
+                }
+                
+                .notification.closing {
+                    animation: slide-out 0.3s ease forwards;
+                }
+                
+                .notification-icon {
+                    margin-right: 12px;
+                    font-size: 18px;
+                    color: #2196f3;
+                }
+                
+                .notification-content {
+                    flex: 1;
+                    font-size: 14px;
+                    color: var(--text-light);
+                }
+                
+                .notification-close {
+                    color: var(--text-muted);
+                    cursor: pointer;
+                    padding: 5px;
+                    margin: -5px;
+                    font-size: 12px;
+                    transition: color 0.2s;
+                }
+                
+                .notification-close:hover {
+                    color: var(--text-light);
+                }
+                
+                .notification.success {
+                    border-left-color: #4caf50;
+                }
+                
+                .notification.success .notification-icon {
+                    color: #4caf50;
+                }
+                
+                .notification.error {
+                    border-left-color: #f44336;
+                }
+                
+                .notification.error .notification-icon {
+                    color: #f44336;
+                }
+                
+                .notification.warning {
+                    border-left-color: #ff9800;
+                }
+                
+                .notification.warning .notification-icon {
+                    color: #ff9800;
+                }
+                
+                @keyframes slide-in {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes slide-out {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `;
+            
+            document.head.appendChild(style);
+            document.body.appendChild(container);
+            
+            return container;
+        }
+        
+        // Update subscription info in the subscription widget
+        function updateSubscriptionInfo() {
+            const subscriptionDays = document.getElementById('subscription-days');
+            const subscriptionStatus = document.getElementById('subscription-status');
+            
+            if (subscriptionDays && subscriptionStatus) {
+                // Default to 90 days (3 months)
+                let days = 90;
+                
+                // Could calculate actual days remaining based on subscription data
+                // For demo, we'll just show 90 days
+                
+                subscriptionDays.textContent = days;
+                subscriptionStatus.textContent = 'Days remaining';
+            }
+        }
+        
+        // Load map on initial page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize elements and event listeners
+            initElements();
+            
+            // Check premium status and redirect if needed
+            checkPremiumStatus();
+            
+            // Initialize map
+            initMap();
+            
+            // Set up user info from localStorage if available
+            const userString = localStorage.getItem('earthquakeUser');
+            if (userString) {
+                try {
+                    const userData = JSON.parse(userString);
+                    const userName = userData.name;
+                    const userEmail = userData.email;
+                    
+                    if (userName) {
+                        // Update user display in sidebar
+                        const userNameEl = document.querySelector('.user-name');
+                        if (userNameEl) userNameEl.textContent = userName;
+                        
+                        // Set first letter of name as avatar text
+                        const userAvatar = document.querySelector('.user-avatar');
+                        if (userAvatar) {
+                            userAvatar.textContent = userName.charAt(0).toUpperCase();
+                        }
+                    }
+                    
+                    if (userEmail) {
+                        const userEmailEl = document.querySelector('.user-email');
+                        if (userEmailEl) userEmailEl.textContent = userEmail;
+                    }
+                    
+                    // Show welcome toast
+                    if (!sessionStorage.getItem('welcomed')) {
+                        let welcomeMessage = `Welcome back, ${userName || 'User'}!`;
+                        if (sessionStorage.getItem('justSignedUp')) {
+                            welcomeMessage = `Welcome to Premium, ${userName || 'User'}! We've sent a confirmation email to your inbox.`;
+                            sessionStorage.removeItem('justSignedUp');
+                        }
+                        setTimeout(() => {
+                            showNotification(welcomeMessage, 'success');
+                        }, 1000);
+                        sessionStorage.setItem('welcomed', 'true');
+                    }
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                }
+            }
+            
+            // Set subscription info if available
+            updateSubscriptionInfo();
+            
+            // Start simulated real-time updates
+            startRealtimeUpdates();
+        });
+        
+        // Check premium status and redirect if not premium
+        function checkPremiumStatus() {
+            // Get user data using consistent key
+            const userString = localStorage.getItem('earthquakeUser');
+            
+            if (!userString) {
+                // No user data found, redirect to index
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            try {
+                const userData = JSON.parse(userString);
+                const isPremium = userData.isPremium === true;
+                const isAdmin = userData.isAdmin === true;
+                
+                // If not premium and not admin, redirect to main page
+                if (!isPremium && !isAdmin) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                // If admin, show admin badge
+                if (isAdmin) {
+                    const premiumBadge = document.querySelector('.premium-badge');
+                    if (premiumBadge) {
+                        premiumBadge.innerHTML = '<i class="fas fa-crown"></i> ADMIN';
+                        premiumBadge.style.background = 'linear-gradient(45deg, #ff5e62, #ff9966)';
+                    }
+                    
+                    // Show admin notification
+                    setTimeout(() => {
+                        showNotification('You are logged in as an admin', 'info');
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Simulated real-time data updates
+        function startRealtimeUpdates() {
+            // Update widget data at random intervals
+            function updateActiveEvents() {
+                const activeEventsEl = document.querySelector('.widget:nth-child(1) .widget-value');
+                const trendEl = document.querySelector('.widget:nth-child(1) .trend');
+                
+                if (activeEventsEl && trendEl) {
+                    // Get current value
+                    let currentValue = parseInt(activeEventsEl.textContent);
+                    
+                    // Generate random change (-2 to +3)
+                    const change = Math.floor(Math.random() * 6) - 2;
+                    const newValue = Math.max(1, currentValue + change);
+                    
+                    // Update value
+                    activeEventsEl.textContent = newValue;
+                    
+                    // Update trend
+                    const percentChange = Math.round((change / currentValue) * 100);
+                    if (percentChange > 0) {
+                        trendEl.className = 'trend up';
+                        trendEl.innerHTML = `<i class="fas fa-arrow-up"></i>${Math.abs(percentChange)}%`;
+                    } else if (percentChange < 0) {
+                        trendEl.className = 'trend down';
+                        trendEl.innerHTML = `<i class="fas fa-arrow-down"></i>${Math.abs(percentChange)}%`;
+                    }
+                    
+                    // If significant change, show notification
+                    if (Math.abs(change) > 1) {
+                        const message = change > 0 
+                            ? `Alert: ${change} new seismic events detected` 
+                            : `${Math.abs(change)} events no longer active`;
+                        const type = change > 0 ? 'warning' : 'info';
+                        showNotification(message, type);
+                    }
+                    
+                    // Schedule next update (between 30-60 seconds)
+                    const nextUpdate = 30000 + Math.random() * 30000;
+                    setTimeout(updateActiveEvents, nextUpdate);
+                }
+            }
+            
+            // Update predicted events periodically
+            function updatePredictedEvents() {
+                const predictedEventsEl = document.querySelector('.widget:nth-child(3) .widget-value');
+                const trendEl = document.querySelector('.widget:nth-child(3) .trend');
+                
+                if (predictedEventsEl && trendEl) {
+                    // Get current value
+                    let currentValue = parseInt(predictedEventsEl.textContent);
+                    
+                    // Generate random change (-1 to +2)
+                    const change = Math.floor(Math.random() * 4) - 1;
+                    const newValue = Math.max(1, currentValue + change);
+                    
+                    // Update value
+                    predictedEventsEl.textContent = newValue;
+                    
+                    // Update trend
+                    const percentChange = Math.round((change / currentValue) * 100);
+                    if (percentChange > 0) {
+                        trendEl.className = 'trend up';
+                        trendEl.innerHTML = `<i class="fas fa-arrow-up"></i>${Math.abs(percentChange)}%`;
+                    } else if (percentChange < 0) {
+                        trendEl.className = 'trend down';
+                        trendEl.innerHTML = `<i class="fas fa-arrow-down"></i>${Math.abs(percentChange)}%`;
+                    }
+                    
+                    // Schedule next update (between 45-90 seconds)
+                    const nextUpdate = 45000 + Math.random() * 45000;
+                    setTimeout(updatePredictedEvents, nextUpdate);
+                }
+            }
+            
+            // Simulate news updates
+            function addNewNewsItem() {
+                const newsFeed = document.querySelector('.news-feed');
+                
+                if (newsFeed) {
+                    // Create new news items occasionally
+                    const newsItems = [
+                        {
+                            title: 'Volcanic Activity Increases Near Iceland',
+                            summary: 'Geologists report heightened volcanic activity in Iceland with over 1,500 small earthquakes detected in the past 24 hours, suggesting a potential eruption in coming weeks.',
+                            time: 'Just now',
+                            source: 'European Seismic Network',
+                            badge: 'breaking'
+                        },
+                        {
+                            title: 'New AI Algorithm Improves Early Tsunami Detection',
+                            summary: 'Researchers at MIT have developed a machine learning algorithm that can detect tsunami-generating earthquakes within 10 seconds, potentially adding critical minutes to evacuation time.',
+                            time: 'Just now',
+                            source: 'Tech Science Journal',
+                            badge: 'info'
+                        },
+                        {
+                            title: 'Underwater Landslide Risk Mapped Along Pacific Coast',
+                            summary: 'A new study has mapped potential underwater landslide zones along the Pacific coast, identifying several high-risk areas that could trigger tsunamis during seismic events.',
+                            time: 'Just now',
+                            source: 'Oceanography Today',
+                            badge: 'update'
+                        }
+                    ];
+                    
+                    // Select a random news item
+                    const randomNews = newsItems[Math.floor(Math.random() * newsItems.length)];
+                    
+                    // Create news item element
+                    const newsItem = document.createElement('div');
+                    newsItem.className = 'news-item';
+                    newsItem.style.opacity = '0';
+                    newsItem.style.transform = 'translateY(-10px)';
+                    newsItem.style.transition = 'opacity 0.5s, transform 0.5s';
+                    
+                    // Create news item content
+                    let badgeHtml = '';
+                    if (randomNews.badge) {
+                        badgeHtml = `<div class="news-badge ${randomNews.badge}">${randomNews.badge}</div>`;
+                    }
+                    
+                    newsItem.innerHTML = `
+                        ${badgeHtml}
+                        <div class="news-time">${randomNews.time}</div>
+                        <div class="news-title">${randomNews.title}</div>
+                        <div class="news-summary">
+                            ${randomNews.summary}
+                        </div>
+                        <div class="news-footer">
+                            <div class="news-source">
+                                <img src="https://via.placeholder.com/16" alt="Source">
+                                ${randomNews.source}
+                            </div>
+                            <div class="news-actions">
+                                <span class="news-action"><i class="fas fa-share-alt"></i> Share</span>
+                                <span class="news-action"><i class="fas fa-bookmark"></i> Save</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add to beginning of feed
+                    newsFeed.insertBefore(newsItem, newsFeed.firstChild);
+                    
+                    // Show notification
+                    showNotification(`Breaking News: ${randomNews.title}`, randomNews.badge === 'breaking' ? 'warning' : 'info');
+                    
+                    // Animate in
+                    setTimeout(() => {
+                        newsItem.style.opacity = '1';
+                        newsItem.style.transform = 'translateY(0)';
+                    }, 100);
+                    
+                    // Set up event listeners for share and save
+                    const shareBtn = newsItem.querySelector('.news-action:nth-child(1)');
+                    const saveBtn = newsItem.querySelector('.news-action:nth-child(2)');
+                    
+                    shareBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showNotification(`Sharing: ${randomNews.title}`, 'info');
+                    });
+                    
+                    saveBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (saveBtn.classList.contains('saved')) {
+                            saveBtn.classList.remove('saved');
+                            saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Save';
+                            showNotification(`Removed from saved items: ${randomNews.title}`, 'info');
+                        } else {
+                            saveBtn.classList.add('saved');
+                            saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                            saveBtn.style.color = 'var(--primary)';
+                            showNotification(`Saved to your bookmarks: ${randomNews.title}`, 'success');
+                        }
+                    });
+                    
+                    newsItem.addEventListener('click', () => {
+                        showNotification(`Opening article: ${randomNews.title}`, 'info');
+                    });
+                    
+                    // Remove old news item if there are more than 6
+                    if (newsFeed.children.length > 6) {
+                        const lastItem = newsFeed.lastChild;
+                        lastItem.style.opacity = '0';
+                        setTimeout(() => {
+                            newsFeed.removeChild(lastItem);
+                        }, 500);
+                    }
+                    
+                    // Schedule next news update (between 50-120 seconds)
+                    const nextUpdate = 50000 + Math.random() * 70000;
+                    setTimeout(addNewNewsItem, nextUpdate);
+                }
+            }
+            
+            // Start update loops with initial delay
+            setTimeout(updateActiveEvents, 15000);
+            setTimeout(updatePredictedEvents, 25000);
+            
+            // Simulate risk level updates
+            setTimeout(() => {
+                const riskLevelEl = document.querySelector('.widget:nth-child(2) .widget-value');
+                const riskRegionEl = document.querySelector('.widget:nth-child(2) .widget-label');
+                const trendEl = document.querySelector('.widget:nth-child(2) .trend');
+                
+                if (riskLevelEl && trendEl) {
+                    // Show notification
+                    showNotification('Risk level update: Elevated risk in Atlantic Region', 'warning');
+                    
+                    // Update values with animation
+                    riskLevelEl.style.transition = 'color 0.5s';
+                    riskLevelEl.style.color = '#ff9500';
+                    
+                    setTimeout(() => {
+                        riskLevelEl.textContent = 'Elevated';
+                        trendEl.className = 'trend up';
+                        trendEl.innerHTML = `<i class="fas fa-arrow-up"></i>1 level`;
+                        
+                        // Update region text
+                        if (riskRegionEl) {
+                            const regionText = riskRegionEl.childNodes[0];
+                            regionText.nodeValue = 'Atlantic Region ';
+                        }
+                        
+                        riskLevelEl.style.color = '';
+                    }, 500);
+                }
+            }, 40000);
+            
+            // Add a new news item after 1 minute
+            setTimeout(() => {
+                // Create new news item
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                
+                // Add breaking news badge
+                newsItem.innerHTML = `
+                    <div class="news-badge breaking">Breaking</div>
+                    <div class="news-time">Just now</div>
+                    <div class="news-title">Volcanic Activity Increases Near Iceland</div>
+                    <div class="news-summary">
+                        Geologists report heightened volcanic activity in Iceland with over 1,500 small earthquakes 
+                        detected in the past 24 hours, suggesting a potential eruption in coming weeks.
+                    </div>
+                    <div class="news-footer">
+                        <div class="news-source">
+                            <img src="https://via.placeholder.com/16" alt="Source">
+                            European Seismic Network
+                        </div>
+                        <div class="news-actions">
+                            <span class="news-action"><i class="fas fa-share-alt"></i> Share</span>
+                            <span class="news-action"><i class="fas fa-bookmark"></i> Save</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Add to the news feed
+                const newsFeed = document.querySelector('.news-feed');
+                if (newsFeed) {
+                    // Add at the top with a fade-in effect
+                    newsItem.style.opacity = '0';
+                    newsItem.style.transition = 'opacity 0.5s';
+                    
+                    newsFeed.insertBefore(newsItem, newsFeed.firstChild);
+                    
+                    // Show notification
+                    showNotification('Breaking News: Volcanic Activity Increases Near Iceland', 'warning');
+                    
+                    // Fade in the news item
+                    setTimeout(() => {
+                        newsItem.style.opacity = '1';
+                    }, 100);
+                    
+                    // Add event listeners for the new item
+                    const shareBtn = newsItem.querySelector('.news-action:nth-child(1)');
+                    const saveBtn = newsItem.querySelector('.news-action:nth-child(2)');
+                    
+                    if (shareBtn) {
+                        shareBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showNotification('Sharing: Volcanic Activity Increases Near Iceland', 'info');
+                        });
+                    }
+                    
+                    if (saveBtn) {
+                        saveBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                            saveBtn.style.color = 'var(--primary)';
+                            showNotification('Saved to your bookmarks: Volcanic Activity Increases Near Iceland', 'success');
+                        });
+                    }
+                    
+                    newsItem.addEventListener('click', () => {
+                        showNotification('Opening article: Volcanic Activity Increases Near Iceland', 'info');
+                    });
+                    
+                    // Remove oldest news item if we have more than 6
+                    if (newsFeed.children.length > 6) {
+                        newsFeed.removeChild(newsFeed.lastChild);
+                    }
+                }
+            }, 60000);
+        }
+        
+        // Real map initialization with Leaflet
+        function initMap() {
+            showNotification('Location found: Displaying nearby earthquakes', 'success');
+            map.setView([37.7749, -122.4194], 5);
+            
+            // Set up location button
+            const locationBtn = document.querySelector('.panel-btn:nth-child(1)');
+            if (locationBtn) {
+                locationBtn.addEventListener('click', () => {
+                    showNotification('Locating your position...', 'info');
+                    
+                    setTimeout(() => {
+                        showNotification('Location found: Displaying nearby earthquakes', 'success');
+                        map.setView([37.7749, -122.4194], 5);
+                    }, 1500);
+                });
+            }
+            
+            // Show success notification
+            showNotification('Interactive map loaded with real-time earthquake data', 'success');
+        }
+        
+        // Helper function to get color based on magnitude
+        function getQuakeColor(magnitude) {
+            if (magnitude >= 7.0) return '#ff0000'; // Red
+            if (magnitude >= 6.0) return '#ff5e62'; // Red-orange
+            if (magnitude >= 5.0) return '#ff9500'; // Orange
+            if (magnitude >= 4.0) return '#ffcc00'; // Yellow-orange
+            if (magnitude >= 3.0) return '#ffff00'; // Yellow
+            return '#00e676'; // Green
+        }
+    </script>
+</body>
+</html> 

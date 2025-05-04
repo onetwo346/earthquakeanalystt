@@ -25,6 +25,72 @@
             overflow-x: hidden;
             width: 100%;
         }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logo-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .auth-container {
+            display: flex;
+            align-items: center;
+        }
+        .premium-btn {
+            background: linear-gradient(45deg, #ffd700, #ff9d00);
+            color: #1a1a3d;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(255, 157, 0, 0.5);
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .premium-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 157, 0, 0.7);
+        }
+        .premium-btn span {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 12px;
+        }
+        .user-container {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+            background: rgba(0, 198, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 198, 255, 0.4);
+            cursor: pointer;
+        }
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00c6ff, #ff5e62);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
         #logo {
             width: clamp(80px, 20vw, 120px);
             height: auto;
@@ -457,115 +523,68 @@
             padding: 20px;
         }
         
-        /* Responsive improvements for better cross-device compatibility */
+        /* Minimal responsive changes - ONLY make buttons stay in a row */
         @media (max-width: 768px) {
             body {
-                padding: 15px 10px;
+                padding: 15px;
             }
             
             #controls {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                width: 100%;
-                gap: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
             }
             
             button {
-                width: 100%;
-                padding: 10px 15px;
-                font-size: 14px;
-                margin: 0;
+                padding: 12px 20px;
+                width: auto;
             }
             
             #earthquakeData, #aiFeedback, #statsView, #earthquakeMap {
                 height: 350px;
-                margin: 15px auto;
-                padding: 15px;
-            }
-            
-            .ai-stat-box {
-                min-width: 100px;
-                padding: 10px;
-            }
-            
-            .ai-stat-value {
-                font-size: 1.5em;
-            }
-            
-            .insight-tab {
-                padding: 8px 12px;
-                font-size: 12px;
-                margin-right: 2px;
-            }
-            
-            .ai-prediction {
-                font-size: 14px;
-                padding: 10px;
-            }
-            
-            .risk-assessment, .safety-measures {
-                padding: 10px;
-                font-size: 14px;
             }
         }
         
         @media (max-width: 480px) {
             body {
-                padding: 10px 5px;
+                padding: 10px;
             }
             
             h1 {
-                font-size: 1.5em;
+                font-size: 1.8em;
             }
             
             p {
-                font-size: 0.9em;
-            }
-            
-            #controls {
-                grid-template-columns: 1fr;
+                font-size: 1em;
+                margin-bottom: 15px;
             }
             
             button {
-                font-size: 13px;
-                padding: 10px;
-            }
-            
-            #earthquakeData, #aiFeedback, #statsView, #earthquakeMap {
-                padding: 10px;
-                height: 350px;
-                margin: 10px auto;
-            }
-            
-            .ai-stat-box {
-                min-width: calc(50% - 5px);
-                padding: 8px;
-            }
-            
-            .trend-graph {
-                height: 120px;
-            }
-            
-            .ai-header {
-                margin-bottom: 10px;
-                padding-bottom: 8px;
-            }
-            
-            .ai-icon {
-                width: 25px;
-                height: 25px;
-                min-width: 25px;
-            }
-            
-            #earthquakeData h2, #statsView h2, #aiFeedback h2 {
-                font-size: 1.2em;
+                padding: 10px 15px;
+                font-size: 14px;
+                white-space: nowrap;
             }
         }
     </style>
 </head>
 <body>
-    <img src="0.jpg" id="logo" alt="Earthquake Analyst Logo">
-    <h1>Earthquake Analyst</h1>
+    <div class="header-container">
+        <div class="logo-title">
+            <img src="0.jpg" id="logo" alt="Earthquake Analyst Logo">
+            <h1>Earthquake Analyst</h1>
+        </div>
+        <div class="auth-container" id="auth-container">
+            <button class="premium-btn" id="premium-btn">
+                <span>⭐</span> Get Premium
+            </button>
+            <div class="user-container" id="user-container" style="display: none;">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div id="user-name">User</div>
+            </div>
+        </div>
+    </div>
+    
     <p>Real-time seismic data, maps, and AI insights at your fingertips.</p>
 
     <div id="controls">
@@ -667,6 +686,7 @@
                     if (map) map.invalidateSize();
                 }, 200);
             });
+            checkAuthStatus();
         });
 
         function setConsistentSizes() {
@@ -1022,7 +1042,7 @@
             function updateAIInsight() {
                 const insight = getAIInsightWithRealData();
                 
-                // Create tab navigation with better display on small screens
+                // Create tab navigation with desktop-like appearance
                 const tabsHtml = `
                     <div class="ai-header">
                         <div class="ai-icon"></div>
@@ -1031,14 +1051,14 @@
                     
                     <div class="ai-prediction">${insight.prediction}</div>
                     
-                    <div style="display: flex; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch;">
+                    <div style="display: flex; flex-wrap: nowrap; margin-bottom: 10px; overflow-x: visible;">
                         <button class="insight-tab active" data-tab="overview">Overview</button>
                         <button class="insight-tab" data-tab="trends">Trends</button>
                         <button class="insight-tab" data-tab="regional">Regional</button>
                     </div>
                 `;
                 
-                // Create overview tab content with consistent sizing
+                // Create overview tab content
                 const overviewHtml = `
                     <div id="overview-content" class="insight-content active">
                         <div class="ai-stats">
@@ -1072,11 +1092,11 @@
                     </div>
                 `;
                 
-                // Create trends tab content with fixed scales
+                // Create trends tab content
                 let trendsHtml = `<div id="trends-content" class="insight-content">`;
                 
                 if (insight.trends) {
-                    // Add magnitude trend graph with consistent scaling
+                    // Add magnitude trend graph
                     trendsHtml += `
                         <div class="trend-graph-title">Magnitude Trend (Last 7 Days)</div>
                         <div class="trend-graph">
@@ -1088,14 +1108,14 @@
                                 <div class="trend-axis-label">0</div>
                             </div>
                             ${insight.trends.magnitude.map((mag, i) => {
-                                const height = Math.min(100, (mag / 8) * 100); // Scale to percentage with a maximum
+                                const height = (mag / 8) * 100; // Scale to percentage (8 is max on our scale)
                                 const day = 6 - i; // Days ago (0 is today)
                                 const isDanger = mag >= 4.0;
                                 
                                 return `
                                     <div class="trend-graph-bar ${isDanger ? 'danger' : ''}" 
                                          style="height: ${height}%">
-                                        <div class="trend-graph-label">${day === 0 ? 'Today' : (day === 1 ? 'Yesterday' : `${day}d ago`)}</div>
+                                        <div class="trend-graph-label">${day === 0 ? 'Today' : (day === 1 ? 'Yesterday' : `${day} days ago`)}</div>
                                     </div>
                                 `;
                             }).join('')}
@@ -1112,13 +1132,13 @@
                                 <div class="trend-axis-label">0</div>
                             </div>
                             ${insight.trends.events.map((count, i) => {
-                                const height = Math.min(100, (count / 25) * 100); // Scale to percentage with a maximum
+                                const height = (count / 25) * 100; // Scale to percentage (25 is max on our scale)
                                 const day = 6 - i; // Days ago (0 is today)
                                 
                                 return `
                                     <div class="trend-graph-bar" 
                                          style="height: ${height}%">
-                                        <div class="trend-graph-label">${day === 0 ? 'Today' : (day === 1 ? 'Yesterday' : `${day}d ago`)}</div>
+                                        <div class="trend-graph-label">${day === 0 ? 'Today' : (day === 1 ? 'Yesterday' : `${day} days ago`)}</div>
                                     </div>
                                 `;
                             }).join('')}
@@ -1136,7 +1156,7 @@
                 
                 trendsHtml += `</div>`;
                 
-                // Create regional tab content with consistent layout
+                // Create regional tab content
                 let regionalHtml = `<div id="regional-content" class="insight-content">`;
                 
                 if (insight.hotspots && insight.hotspots.length > 0) {
@@ -1182,29 +1202,23 @@
                 // Combine all content
                 aiSection.innerHTML = tabsHtml + overviewHtml + trendsHtml + regionalHtml;
                 
-                // Add tab switching functionality with touch support
+                // Add tab switching functionality
                 setTimeout(() => {
                     const tabs = document.querySelectorAll('.insight-tab');
-                    const tabHandler = function() {
-                        // Hide all content sections
-                        document.querySelectorAll('.insight-content').forEach(content => {
-                            content.classList.remove('active');
-                        });
-                        
-                        // Show selected content
-                        const contentId = this.getAttribute('data-tab') + '-content';
-                        document.getElementById(contentId).classList.add('active');
-                        
-                        // Update active tab styling
-                        tabs.forEach(t => t.classList.remove('active'));
-                        this.classList.add('active');
-                    };
-                    
                     tabs.forEach(tab => {
-                        tab.addEventListener('click', tabHandler);
-                        tab.addEventListener('touchend', function(e) {
-                            e.preventDefault();
-                            tabHandler.call(this);
+                        tab.addEventListener('click', () => {
+                            // Hide all content sections
+                            document.querySelectorAll('.insight-content').forEach(content => {
+                                content.classList.remove('active');
+                            });
+                            
+                            // Show selected content
+                            const contentId = tab.getAttribute('data-tab') + '-content';
+                            document.getElementById(contentId).classList.add('active');
+                            
+                            // Update active tab styling
+                            tabs.forEach(t => t.classList.remove('active'));
+                            tab.classList.add('active');
                         });
                     });
                 }, 100);
@@ -1219,56 +1233,107 @@
         }
 
         function updateMap() {
-            if (!map) {
-                initMap(); // Make sure map is initialized
-                return; // Return and let the map initialize first
-            }
+            if (!map) return;
             
-            // Clear previous markers
+            // Clear existing markers
             map.eachLayer(layer => {
-                if (layer instanceof L.Marker) map.removeLayer(layer);
+                if (layer instanceof L.Marker || layer instanceof L.Circle) {
+                    map.removeLayer(layer);
+                }
             });
             
-            // Remove any existing overlay message
-            const existingOverlay = document.getElementById("mapOverlayMessage");
-            if (existingOverlay) {
-                existingOverlay.remove();
+            // Add tile layer back if needed
+            if (map.eachLayer(layer => true).length === 0) {
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors',
+                    tileSize: 512,
+                    zoomOffset: -1
+                }).addTo(map);
             }
             
-            if (currentMapData && currentMapData.length) {
-                const markers = currentMapData.map(quake => {
-                    const coords = quake.geometry.coordinates; // [lon, lat, depth]
-                    const { place, mag } = quake.properties;
-                    const markerSize = Math.max(10, mag * 5);
-                    const marker = L.marker([coords[1], coords[0]], {
-                        title: `${place} (Mag: ${mag.toFixed(1)})`
-                    }).addTo(map);
-                    marker.bindPopup(`<b>${place}</b><br>Magnitude: ${mag.toFixed(1)}<br>Coords: ${coords[1].toFixed(4)}°N, ${coords[0].toFixed(4)}°E`);
-                    marker.setIcon(L.divIcon({
-                        className: 'earthquake-marker',
-                        html: `<div style="background: linear-gradient(45deg, #ff5e62, #00c6ff); width: ${markerSize}px; height: ${markerSize}px; border-radius: 50%; opacity: 0.8; border: 2px solid #fff;"></div>`,
-                        iconSize: [markerSize, markerSize]
-                    }));
-                    return marker;
+            if (!currentMapData.length) {
+                // Reset view if no earthquakes
+                map.setView([0, 0], 2);
+                return;
+            }
+            
+            const bounds = L.latLngBounds();
+            
+            currentMapData.forEach(quake => {
+                const { coordinates } = quake.geometry;
+                const { mag, place, time, url } = quake.properties;
+                const lat = coordinates[1];
+                const lng = coordinates[0];
+                const depth = coordinates[2];
+                
+                if (isNaN(lat) || isNaN(lng)) return; // Skip invalid coordinates
+                
+                const latlng = L.latLng(lat, lng);
+                bounds.extend(latlng);
+                
+                // Calculate radius based on magnitude (in meters)
+                // Use exponential scale to make differences more visible
+                const radius = Math.pow(10, mag) * 100;
+                
+                // Create circle with radius based on magnitude
+                const circle = L.circle(latlng, {
+                    color: mag >= 4.0 ? '#ff5e62' : '#00c6ff',
+                    fillColor: mag >= 4.0 ? '#ff5e62' : '#00c6ff',
+                    fillOpacity: 0.2,
+                    weight: 1,
+                    radius: radius
+                }).addTo(map);
+                
+                // Create marker
+                const marker = L.divIcon({
+                    className: 'earthquake-marker',
+                    html: `<div style="background-color: ${mag >= 4.0 ? '#ff5e62' : '#00c6ff'}; 
+                                    width: ${Math.max(8, mag * 4)}px; 
+                                    height: ${Math.max(8, mag * 4)}px; 
+                                    border-radius: 50%; 
+                                    border: 2px solid #fff;
+                                    box-shadow: 0 0 4px rgba(0,0,0,0.4);">
+                          </div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
                 });
                 
-                if (markers.length > 0) {
-                    const group = new L.featureGroup(markers);
-                    map.fitBounds(group.getBounds().pad(0.1));
-                    map.invalidateSize();
-                    markers[0]?.openPopup();
-                }
-            } else {
-                map.setView([0, 0], 2);
+                const markerObj = L.marker(latlng, { icon: marker }).addTo(map);
                 
-                // Add a message overlay without destroying map
-                if (!document.getElementById("mapOverlayMessage")) {
-                    const overlay = document.createElement("div");
-                    overlay.id = "mapOverlayMessage";
-                    overlay.style.cssText = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(42, 64, 102, 0.8); padding: 15px; border-radius: 10px; color: #d9e4ff; text-align: center; z-index: 1000;";
-                    overlay.innerHTML = "No earthquake data to display.<br>Please tap the \"Fetch Data\" button to load data.";
-                    document.getElementById("earthquakeMap").appendChild(overlay);
+                // Add popup with earthquake info
+                const popup = L.popup({ className: 'earthquake-popup' })
+                    .setContent(`
+                        <div style="font-family: 'Exo 2', sans-serif; color: #d9e4ff;">
+                            <strong>Location:</strong> ${place}<br>
+                            <strong>Magnitude:</strong> ${mag.toFixed(1)}<br>
+                            <strong>Depth:</strong> ${depth.toFixed(1)} km<br>
+                            <strong>Time:</strong> ${new Date(time).toLocaleString()}<br>
+                            <a href="${url}" target="_blank" style="color: #00c6ff;">View on USGS</a>
+                        </div>
+                    `);
+                
+                markerObj.bindPopup(popup);
+                
+                // Add pulse effect for dangerous earthquakes
+                if (mag >= 4.5) {
+                    const pulseIcon = L.divIcon({
+                        className: 'pulse-marker',
+                        html: `<div style="background-color: rgba(255,94,98,0.4); 
+                                        width: ${Math.max(24, mag * 8)}px; 
+                                        height: ${Math.max(24, mag * 8)}px; 
+                                        border-radius: 50%;">
+                              </div>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+                    L.marker(latlng, { icon: pulseIcon }).addTo(map);
                 }
+            });
+            
+            // Fit map to bounds of all earthquakes, with padding
+            if (bounds.isValid()) {
+                map.fitBounds(bounds, { padding: [30, 30] });
             }
         }
 
@@ -1311,17 +1376,51 @@
             }
         }
 
-        // Add resize handler with throttling
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                setConsistentSizes();
-                if (document.getElementById("earthquakeMap").style.display === "block" && map) {
-                    map.invalidateSize(true);
+        // Authentication check
+        function checkAuthStatus() {
+            const userString = localStorage.getItem('earthquakeUser');
+            const premiumBtn = document.getElementById('premium-btn');
+            const userContainer = document.getElementById('user-container');
+            
+            if (userString) {
+                try {
+                    const user = JSON.parse(userString);
+                    
+                    // Update UI for logged in user
+                    premiumBtn.style.display = 'none';
+                    userContainer.style.display = 'flex';
+                    
+                    // Set user info
+                    const userAvatar = document.getElementById('user-avatar');
+                    const userName = document.getElementById('user-name');
+                    
+                    if (user.name) {
+                        userName.textContent = user.name;
+                        userAvatar.textContent = user.name.charAt(0);
+                    } else if (user.email) {
+                        userName.textContent = user.email;
+                        userAvatar.textContent = user.email.charAt(0).toUpperCase();
+                    }
+                    
+                    // Set click handler for user container
+                    userContainer.addEventListener('click', function() {
+                        window.location.href = 'premium.html';
+                    });
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                    localStorage.removeItem('earthquakeUser');
                 }
-            }, 250);
-        });
+            } else {
+                // Not logged in
+                premiumBtn.style.display = 'flex';
+                userContainer.style.display = 'none';
+                
+                // Set click handler for premium button
+                premiumBtn.addEventListener('click', function() {
+                    window.location.href = 'login.html';
+                });
+            }
+        }
     </script>
 </body>
 </html>

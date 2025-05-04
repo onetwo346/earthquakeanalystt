@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Earthquake Analyst - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #1a1a3d, #2a4066);
+            color: #d9e4ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        #logo {
+            width: clamp(80px, 20vw, 120px);
+            height: auto;
+            display: block;
+            margin: 0 auto 25px;
+            filter: drop-shadow(0 5px 10px rgba(0, 198, 255, 0.5));
+        }
+        h1 {
+            text-align: center;
+            font-size: clamp(1.5em, 5vw, 2.5em);
+            background: linear-gradient(90deg, #00c6ff, #ff5e62);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(42, 64, 102, 0.9);
+            border: 2px solid #00c6ff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 198, 255, 0.3);
+        }
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            color: #b3c7ff;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .auth-tab.active {
+            color: #00c6ff;
+            border-bottom: 3px solid #00c6ff;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d9e4ff;
+            font-weight: 700;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(0, 198, 255, 0.3);
+            background: rgba(26, 26, 61, 0.5);
+            color: #d9e4ff;
+            font-family: 'Exo 2', sans-serif;
+            font-size: 16px;
+            transition: border 0.3s ease;
+        }
+        input:focus {
+            border-color: #00c6ff;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 198, 255, 0.3);
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(45deg, #00c6ff, #ff5e62);
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 94, 98, 0.5);
+        }
+        .form-container {
+            display: none;
+        }
+        .form-container.active {
+            display: block;
+        }
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #b3c7ff;
+            font-size: 14px;
+        }
+        .form-footer a {
+            color: #00c6ff;
+            text-decoration: none;
+        }
+        .premium-features {
+            background: rgba(255, 94, 98, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 94, 98, 0.4);
+        }
+        .premium-features h3 {
+            color: #ff5e62;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .premium-features ul {
+            padding-left: 20px;
+        }
+        .premium-features li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 15px;
+        }
+        .premium-features li:before {
+            content: "✓";
+            color: #00c6ff;
+            position: absolute;
+            left: -15px;
+        }
+        .error-message {
+            color: #ff5e62;
+            margin-top: 5px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        .back-link {
+            color: #b3c7ff;
+            margin-top: 20px;
+            text-decoration: none;
+            display: inline-block;
+            transition: color 0.3s ease;
+        }
+        .back-link:hover {
+            color: #00c6ff;
+        }
+        .price-badge {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 198, 255, 0.4);
+        }
+        .price {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .period {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <img src="0.jpg" id="logo" alt="Earthquake Analyst Logo">
+    <h1>Premium Access</h1>
+    
+    <div class="auth-container">
+        <div class="auth-tabs">
+            <div class="auth-tab active" id="login-tab">Login</div>
+            <div class="auth-tab" id="signup-tab">Sign Up</div>
+        </div>
+        
+        <div class="form-container active" id="login-form">
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Your password" required>
+            </div>
+            <button id="login-button">Login</button>
+            <div class="error-message" id="login-error"></div>
+            <div class="form-footer">
+                Don't have an account? <a href="#" id="switch-to-signup">Sign up now</a>
+            </div>
+        </div>
+        
+        <div class="form-container" id="signup-form">
+            <div class="form-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" placeholder="Choose a password" required>
+            </div>
+            <button id="signup-button">Sign Up & Subscribe ($2 for 3 months)</button>
+            <div class="error-message" id="signup-error"></div>
+            <div class="form-footer">
+                Already have an account? <a href="#" id="switch-to-login">Login</a>
+            </div>
+        </div>
+        
+        <div class="premium-features">
+            <h3>Premium Benefits</h3>
+            <ul>
+                <li>3 months of unlimited access</li>
+                <li>Real-time alerts for all natural disasters</li>
+                <li>Advanced AI prediction analysis</li>
+                <li>Detailed historical seismic data</li>
+                <li>Global coverage of all disaster types</li>
+            </ul>
+            <div class="price-badge">
+                <span class="price">$2</span>
+                <span class="period">for 3 months</span>
+            </div>
+        </div>
+    </div>
+    
+    <a href="index.html" class="back-link">← Back to Home</a>
+    
+    <!-- Stripe JS for payment processing -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        // Stripe initialization
+        const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY'); // Replace with your Stripe publishable key
+        
+        // DOM elements
+        const loginTab = document.getElementById('login-tab');
+        const signupTab = document.getElementById('signup-tab');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const switchToSignup = document.getElementById('switch-to-signup');
+        const switchToLogin = document.getElementById('switch-to-login');
+        const loginButton = document.getElementById('login-button');
+        const signupButton = document.getElementById('signup-button');
+        const loginError = document.getElementById('login-error');
+        const signupError = document.getElementById('signup-error');
+        
+        // Stripe checkout URL
+        let stripeCheckoutUrl = 'https://buy.stripe.com/fZe3eYf851qk8Cc28a';
+        
+        // Fetch the checkout URL from server on page load
+        fetch('/api/checkout-url')
+            .then(response => response.json())
+            .then(data => {
+                if (data.url) {
+                    stripeCheckoutUrl = data.url;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching checkout URL:', error);
+            });
+        
+        // Tab switching
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('active');
+            signupTab.classList.remove('active');
+            loginForm.classList.add('active');
+            signupForm.classList.remove('active');
+        });
+        
+        signupTab.addEventListener('click', () => {
+            signupTab.classList.add('active');
+            loginTab.classList.remove('active');
+            signupForm.classList.add('active');
+            loginForm.classList.remove('active');
+        });
+        
+        switchToSignup.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupTab.click();
+        });
+        
+        switchToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginTab.click();
+        });
+        
+        // Login functionality
+        loginButton.addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                loginError.textContent = 'Please fill in all fields';
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            // Admin bypass for testing
+            if ((email === 'admin' || email === 'cosmoscoderr') && password === 'guru') {
+                // Store admin user info
+                localStorage.setItem('earthquakeUser', JSON.stringify({
+                    name: 'Admin',
+                    email: 'admin@earthquakeanalyst.com',
+                    isPremium: true,
+                    isAdmin: true
+                }));
+                
+                // Show welcome toast
+                showWelcomeToast('Welcome back, Admin!');
+                
+                // Redirect to premium page
+                setTimeout(() => {
+                    window.location.href = 'premium.html';
+                }, 1500);
+                return;
+            }
+            
+            try {
+                loginButton.disabled = true;
+                loginButton.textContent = 'Logging in...';
+                
+                // Check if subscription is active
+                const response = await fetch('/check-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                }).catch(error => {
+                    throw new Error('Network connection error. Please check your internet connection and try again.');
+                });
+                
+                if (!response) {
+                    throw new Error('Server not responding. Please try again later.');
+                }
+                
+                const result = await response.json();
+                
+                if (response.ok && result.status === 'active') {
+                    // Store user info
+                    localStorage.setItem('earthquakeUser', JSON.stringify({
+                        email,
+                        isPremium: true
+                    }));
+                    
+                    // Show welcome toast
+                    showWelcomeToast('Welcome back! Your premium access is active.');
+                    
+                    // Redirect to premium page after toast
+                    setTimeout(() => {
+                        window.location.href = 'premium.html';
+                    }, 1500);
+                } else {
+                    loginError.textContent = 'Subscription not active or account not found';
+                    loginError.style.display = 'block';
+                }
+            } catch (error) {
+                loginError.textContent = 'Login failed: ' + error.message;
+                loginError.style.display = 'block';
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = 'Login';
+            }
+        });
+        
+        // Signup and payment functionality
+        signupButton.addEventListener('click', async () => {
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            
+            if (!name || !email || !password) {
+                signupError.textContent = 'Please fill in all fields';
+                signupError.style.display = 'block';
+                return;
+            }
+            
+            try {
+                signupButton.disabled = true;
+                signupButton.textContent = 'Processing...';
+                
+                // Store user info temporarily in session storage
+                sessionStorage.setItem('tempUserData', JSON.stringify({
+                    name,
+                    email,
+                    password
+                }));
+                
+                // Show payment message with more details
+                showWelcomeToast(`Preparing secure payment page for ${name}...`);
+                
+                // Create an info message before redirect
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'payment-info';
+                infoDiv.innerHTML = `
+                    <h3>Almost there!</h3>
+                    <p>You'll be redirected to our secure payment page in a moment.</p>
+                    <p class="price-info">Total: <strong>$2.00</strong> for 3 months of Premium access</p>
+                    <p>After payment, you'll receive:</p>
+                    <ul>
+                        <li>Immediate premium access</li>
+                        <li>Welcome email with activation details</li>
+                        <li>Subscription confirmation with plan details</li>
+                    </ul>
+                    <div class="loader"></div>
+                `;
+                
+                // Add styles for the info box
+                const style = document.createElement('style');
+                style.textContent = `
+                    .payment-info {
+                        background: rgba(0, 198, 255, 0.1);
+                        border: 1px solid rgba(0, 198, 255, 0.3);
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin-top: 20px;
+                        text-align: center;
+                        animation: fade-in 0.5s ease;
+                    }
+                    .payment-info h3 {
+                        color: #00c6ff;
+                        margin-bottom: 10px;
+                    }
+                    .price-info {
+                        background: rgba(0, 198, 255, 0.2);
+                        padding: 10px;
+                        border-radius: 6px;
+                        margin: 15px auto;
+                        max-width: 80%;
+                        font-size: 16px;
+                    }
+                    .payment-info ul {
+                        text-align: left;
+                        margin: 10px 0;
+                        padding-left: 20px;
+                    }
+                    .payment-info li {
+                        margin-bottom: 5px;
+                    }
+                    .loader {
+                        border: 3px solid rgba(0, 198, 255, 0.1);
+                        border-radius: 50%;
+                        border-top: 3px solid #00c6ff;
+                        width: 25px;
+                        height: 25px;
+                        animation: spin 1s linear infinite;
+                        margin: 15px auto 5px;
+                    }
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                    @keyframes fade-in {
+                        0% { opacity: 0; transform: translateY(10px); }
+                        100% { opacity: 1; transform: translateY(0); }
+                    }
+                `;
+                
+                document.head.appendChild(style);
+                signupForm.appendChild(infoDiv);
+                
+                // Redirect to Stripe checkout after showing information
+                setTimeout(() => {
+                    window.location.href = stripeCheckoutUrl;
+                }, 3000);
+                
+            } catch (error) {
+                signupError.textContent = 'Signup failed: ' + error.message;
+                signupError.style.display = 'block';
+                signupButton.disabled = false;
+                signupButton.textContent = 'Sign Up & Subscribe';
+            }
+        });
+        
+        // Check for successful payment from Stripe checkout
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is coming back from Stripe checkout (we could use URL parameters here)
+            const urlParams = new URLSearchParams(window.location.search);
+            const checkoutSuccess = urlParams.get('checkout_success');
+            
+            if (checkoutSuccess === 'true') {
+                // Get the stored user data
+                const tempUserData = JSON.parse(sessionStorage.getItem('tempUserData') || '{}');
+                
+                if (tempUserData.name && tempUserData.email) {
+                    // Store user info
+                    localStorage.setItem('earthquakeUser', JSON.stringify({
+                        name: tempUserData.name,
+                        email: tempUserData.email,
+                        isPremium: true
+                    }));
+                    
+                    // Set flag for new signup
+                    sessionStorage.setItem('justSignedUp', 'true');
+                    
+                    // Clear temporary data
+                    sessionStorage.removeItem('tempUserData');
+                    
+                    // Register subscription with server
+                    fetch('/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: tempUserData.email,
+                            name: tempUserData.name,
+                            checkoutSessionId: urlParams.get('session_id') || 'cs_test_simulated'
+                        })
+                    }).catch(error => {
+                        console.error('Error registering subscription:', error);
+                    });
+                    
+                    // Show welcome toast
+                    showWelcomeToast(`Welcome, ${tempUserData.name}! Your premium subscription is active.`);
+                    
+                    // Redirect to premium page after toast
+                    setTimeout(() => {
+                        window.location.href = 'premium.html';
+                    }, 2000);
+                }
+            }
+        });
+        
+        // Welcome toast notification function
+        function showWelcomeToast(message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'welcome-toast';
+            toast.innerHTML = `
+                <div class="toast-icon">✓</div>
+                <div class="toast-message">${message}</div>
+            `;
+            
+            // Add toast styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .welcome-toast {
+                    position: fixed;
+                    bottom: 30px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0, 198, 255, 0.95);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                    display: flex;
+                    align-items: center;
+                    min-width: 300px;
+                    max-width: 90%;
+                    z-index: 9999;
+                    animation: toast-in 0.5s ease, toast-out 0.5s ease 3.5s forwards;
+                }
+                .toast-icon {
+                    background: rgba(255, 255, 255, 0.2);
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 12px;
+                    flex-shrink: 0;
+                }
+                .toast-message {
+                    font-size: 15px;
+                }
+                @keyframes toast-in {
+                    from { transform: translate(-50%, 100px); opacity: 0; }
+                    to { transform: translate(-50%, 0); opacity: 1; }
+                }
+                @keyframes toast-out {
+                    from { transform: translate(-50%, 0); opacity: 1; }
+                    to { transform: translate(-50%, 100px); opacity: 0; }
+                }
+            `;
+            
+            // Add to document
+            document.head.appendChild(style);
+            document.body.appendChild(toast);
+            
+            // Remove after 4 seconds
+            setTimeout(() => {
+                toast.remove();
+                style.remove();
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

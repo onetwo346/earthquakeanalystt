@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Payment Successful - Earthquake Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #1a1a3d, #2a4066);
+            color: #d9e4ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-align: center;
+        }
+        #logo {
+            width: clamp(80px, 20vw, 120px);
+            height: auto;
+            display: block;
+            margin: 0 auto 25px;
+            filter: drop-shadow(0 5px 10px rgba(0, 198, 255, 0.5));
+        }
+        h1 {
+            text-align: center;
+            font-size: clamp(1.5em, 5vw, 2.5em);
+            background: linear-gradient(90deg, #00c6ff, #ff5e62);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+        .success-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(42, 64, 102, 0.9);
+            border: 2px solid #00c6ff;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 25px;
+            animation: fade-in 0.8s ease;
+        }
+        .checkmark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #00c6ff, #0096ff);
+            border-radius: 50%;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .checkmark:after {
+            content: '';
+            width: 30px;
+            height: 15px;
+            border-left: 4px solid white;
+            border-bottom: 4px solid white;
+            position: absolute;
+            transform: rotate(-45deg) translate(4px, -5px);
+        }
+        p {
+            margin: 15px 0;
+            line-height: 1.6;
+            color: #b3c7ff;
+        }
+        .highlight {
+            color: #00c6ff;
+            font-weight: bold;
+        }
+        .cta-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 28px;
+            background: linear-gradient(45deg, #00c6ff, #ff5e62);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 198, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00c6ff;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .price-confirmation {
+            background: rgba(0, 198, 255, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        .price {
+            font-size: 30px;
+            font-weight: bold;
+            color: #00c6ff;
+        }
+        .price-text {
+            color: #d9e4ff;
+            margin-top: 5px;
+        }
+        @keyframes pulse {
+            0% { background: rgba(0, 198, 255, 0.1); }
+            50% { background: rgba(0, 198, 255, 0.2); }
+            100% { background: rgba(0, 198, 255, 0.1); }
+        }
+    </style>
+</head>
+<body>
+    <img src="0.jpg" id="logo" alt="Earthquake Analyst Logo">
+    <div class="success-container">
+        <div class="checkmark"></div>
+        <h1>Payment Successful!</h1>
+        <p>Thank you for subscribing to <span class="highlight">Earthquake Analyst Premium</span>.</p>
+        <p>Your 3-month subscription has been activated and you now have access to all premium features.</p>
+        
+        <div class="price-confirmation">
+            <div class="price">$2.00</div>
+            <div class="price-text">for 3 months of premium access</div>
+        </div>
+        
+        <div id="account-details">
+            <p>We're preparing your account...</p>
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Setting up your premium access</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get session ID or other parameters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            
+            // Get user data from session storage
+            const tempUserData = JSON.parse(sessionStorage.getItem('tempUserData') || '{}');
+            
+            if (tempUserData.name && tempUserData.email) {
+                // Complete signup process
+                setTimeout(() => {
+                    // Update the content
+                    document.getElementById('account-details').innerHTML = `
+                        <p>Your account has been successfully set up!</p>
+                        <p><span class="highlight">Email:</span> ${tempUserData.email}</p>
+                        <p>We've sent a confirmation email with your subscription details.</p>
+                        <a href="premium.html" class="cta-button">Go to Premium Dashboard</a>
+                    `;
+                    
+                    // Store user info
+                    localStorage.setItem('earthquakeUser', JSON.stringify({
+                        name: tempUserData.name,
+                        email: tempUserData.email,
+                        isPremium: true
+                    }));
+                    
+                    // Set flag for new signup
+                    sessionStorage.setItem('justSignedUp', 'true');
+                    
+                    // Register subscription with server
+                    fetch('/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: tempUserData.email,
+                            name: tempUserData.name,
+                            checkoutSessionId: sessionId || 'cs_test_simulated'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success === false) {
+                            console.error('Error in subscription processing:', data.error);
+                        } else {
+                            console.log('Subscription and welcome emails processed successfully');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error registering subscription:', error);
+                    });
+                }, 2000);
+            } else {
+                // No user data found, redirect to login page with success parameter
+                setTimeout(() => {
+                    window.location.href = `login.html?checkout_success=true&session_id=${sessionId || ''}`;
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html> 
